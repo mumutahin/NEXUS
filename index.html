@@ -1,1199 +1,2429 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEXUS – Premium Smartphone Store</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <!-- ============================ TOAST ============================ -->
-    <div class="toast" id="toast">
-      <span class="toast-icon" id="toast-icon">✅</span>
-      <span id="toast-msg">Item added to cart!</span>
-      <span class="toast-close" onclick="hideToast()">✕</span>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS – Premium Smartphone Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================
+   CSS VARIABLES & RESET
+============================ */
+:root {
+  --bg: #080a0f;
+  --bg2: #0d1018;
+  --bg3: #12151e;
+  --surface: #161b27;
+  --surface2: #1e2535;
+  --border: rgba(255,255,255,0.07);
+  --border-glow: rgba(0,212,255,0.25);
+  --text: #e8eaf0;
+  --text-muted: #6b7285;
+  --text-dim: #9aa0b4;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #f59e0b;
+  --red: #ef4444;
+  --green: #22c55e;
+  --gradient: linear-gradient(135deg, #00d4ff, #7c3aed);
+  --glow: 0 0 30px rgba(0,212,255,0.15);
+  --glow-strong: 0 0 60px rgba(0,212,255,0.25);
+  --radius: 14px;
+  --radius-lg: 20px;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font-body); }
+ul { list-style: none; }
+input, select, textarea { font-family: var(--font-body); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ============================
+   UTILITY
+============================ */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--text-muted); }
+.text-dim { color: var(--text-dim); }
+.mono { font-family: var(--font-mono); }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 999px; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+}
+.badge-accent { background: rgba(0,212,255,0.12); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+.badge-purple { background: rgba(124,58,237,0.12); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+.badge-amber { background: rgba(245,158,11,0.12); color: var(--accent3); border: 1px solid rgba(245,158,11,0.2); }
+.badge-red { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.badge-green { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+.section-label {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::before { content:''; display:block; width:24px; height:1px; background:var(--accent); }
+.section-title {
+  font-family: var(--font-display); font-size: clamp(36px,5vw,60px);
+  letter-spacing: 0.02em; line-height: 1; color: var(--text);
+}
+.section-subtitle { color: var(--text-dim); font-size: 15px; max-width: 520px; margin-top: 12px; }
+.divider { height: 1px; background: var(--border); margin: 60px 0; }
+.section { padding: 80px 0; }
+
+/* ============================
+   BUTTONS
+============================ */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; border: none;
+  transition: var(--transition); cursor: pointer; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent); color: var(--bg);
+  box-shadow: 0 0 24px rgba(0,212,255,0.3);
+}
+.btn-primary:hover { background: #00bce6; box-shadow: 0 0 40px rgba(0,212,255,0.45); transform: translateY(-1px); }
+.btn-outline {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border); padding: 11px 23px;
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.05); }
+.btn-ghost { background: var(--surface); color: var(--text); }
+.btn-ghost:hover { background: var(--surface2); }
+.btn-purple { background: var(--accent2); color: #fff; box-shadow: 0 0 24px rgba(124,58,237,0.3); }
+.btn-purple:hover { background: #6d28d9; box-shadow: 0 0 40px rgba(124,58,237,0.45); transform: translateY(-1px); }
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 10px; }
+.btn-icon { width: 40px; height: 40px; padding: 0; border-radius: 10px; }
+.btn-icon-lg { width: 48px; height: 48px; padding: 0; border-radius: 12px; }
+
+/* ============================
+   HEADER / NAV
+============================ */
+.topbar {
+  background: rgba(8,10,15,0.9); border-bottom: 1px solid var(--border);
+  padding: 10px 0; font-size: 13px; color: var(--text-muted);
+}
+.topbar .container { display: flex; justify-content: space-between; align-items: center; }
+.topbar-links { display: flex; gap: 20px; }
+.topbar-links a:hover { color: var(--accent); }
+
+header {
+  position: sticky; top: 0; z-index: 1000;
+  background: rgba(8,10,15,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+nav { padding: 0; }
+.nav-inner { display: flex; align-items: center; gap: 0; height: 72px; }
+
+.logo {
+  font-family: var(--font-display); font-size: 28px; letter-spacing: 0.08em;
+  color: var(--text); margin-right: 48px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.logo span { color: var(--accent); }
+.logo-icon {
+  width: 32px; height: 32px; background: var(--gradient);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.nav-links { display: flex; align-items: center; gap: 4px; flex: 1; }
+.nav-link {
+  padding: 8px 14px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  color: var(--text-dim); transition: var(--transition); position: relative;
+}
+.nav-link:hover, .nav-link.active { color: var(--text); background: var(--surface); }
+
+/* Dropdown */
+.nav-item { position: relative; }
+.nav-item:hover .dropdown { opacity: 1; pointer-events: all; transform: translateY(0); }
+.dropdown {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 100;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); min-width: 200px; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  opacity: 0; pointer-events: none;
+  transform: translateY(-8px); transition: var(--transition);
+}
+.dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; font-size: 14px; color: var(--text-dim);
+  transition: var(--transition); border-bottom: 1px solid var(--border);
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: var(--surface2); color: var(--accent); }
+.dropdown-item .di-icon { font-size: 18px; width: 28px; flex-shrink: 0; }
+
+.nav-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px 14px;
+  transition: var(--transition); min-width: 220px;
+}
+.search-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+.search-bar input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: 14px; width: 100%;
+}
+.search-bar input::placeholder { color: var(--text-muted); }
+.search-icon { color: var(--text-muted); font-size: 16px; }
+
+.cart-btn {
+  position: relative; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: var(--transition);
+}
+.cart-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cart-count {
+  position: absolute; top: -6px; right: -6px;
+  background: var(--accent); color: var(--bg);
+  width: 18px; height: 18px; border-radius: 50%; font-size: 10px;
+  font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+
+/* Mobile Nav Toggle */
+.mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 6px; }
+.mobile-toggle span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: var(--transition); }
+
+/* ============================
+   HERO SECTION
+============================ */
+.hero {
+  min-height: 92vh; display: flex; align-items: center;
+  position: relative; overflow: hidden; padding: 80px 0;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: 
+    radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,212,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(245,158,11,0.04) 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.4), transparent 70%);
+}
+.hero .container { position: relative; z-index: 1; }
+.hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+
+.hero-content { }
+.hero-badge { margin-bottom: 24px; }
+.hero-title {
+  font-family: var(--font-display); font-size: clamp(52px,7vw,88px);
+  letter-spacing: 0.02em; line-height: 0.95; margin-bottom: 24px;
+}
+.hero-title .line-2 { color: var(--accent); -webkit-text-stroke: 0; }
+.hero-title .line-3 { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.3); }
+
+.hero-desc { color: var(--text-dim); font-size: 16px; max-width: 440px; margin-bottom: 36px; line-height: 1.7; }
+.hero-actions { display: flex; align-items: center; gap: 16px; margin-bottom: 48px; }
+.hero-stats { display: flex; gap: 36px; }
+.hero-stat-num {
+  font-family: var(--font-display); font-size: 36px; letter-spacing: 0.04em;
+  color: var(--text); line-height: 1;
+}
+.hero-stat-num span { color: var(--accent); }
+.hero-stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+
+.hero-visual { position: relative; }
+.hero-phone-wrap {
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.hero-phone-glow {
+  position: absolute; width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+}
+.hero-phone {
+  position: relative; z-index: 1; background: var(--surface);
+  border: 1px solid rgba(0,212,255,0.2); border-radius: 36px;
+  width: 220px; padding: 16px 12px; box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(0,212,255,0.1);
+  animation: float-phone 4s ease-in-out infinite;
+}
+@keyframes float-phone {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-12px) rotate(-3deg); }
+}
+.phone-screen {
+  background: linear-gradient(135deg, #0a0e1a, #1a0a2e);
+  border-radius: 24px; height: 380px; overflow: hidden; position: relative;
+}
+.phone-screen-inner {
+  padding: 16px; height: 100%;
+  background: linear-gradient(180deg, rgba(0,212,255,0.05) 0%, transparent 40%);
+}
+.phone-notch {
+  width: 80px; height: 20px; background: var(--bg);
+  border-radius: 0 0 12px 12px; margin: 0 auto 16px;
+}
+.phone-app-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.phone-app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.phone-widget {
+  background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 16px; padding: 12px; margin-bottom: 8px;
+}
+.phone-widget-title { font-size: 9px; color: var(--accent); font-family: var(--font-mono); letter-spacing: 0.1em; margin-bottom: 6px; }
+.phone-bar { height: 4px; background: var(--surface2); border-radius: 2px; margin: 4px 0; overflow: hidden; }
+.phone-bar-fill { height: 100%; background: var(--gradient); border-radius: 2px; }
+.phone-status { display: flex; justify-content: space-between; font-size: 8px; color: var(--text-muted); margin-bottom: 8px; }
+
+.hero-floating-card {
+  position: absolute; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  animation: float-card 3s ease-in-out infinite;
+}
+@keyframes float-card {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.hfc-1 { top: 30px; right: -40px; animation-delay: 0s; min-width: 160px; }
+.hfc-2 { bottom: 60px; left: -60px; animation-delay: 1.5s; min-width: 150px; }
+.hfc-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.hfc-value { font-family: var(--font-display); font-size: 22px; color: var(--accent); }
+.hfc-sub { font-size: 11px; color: var(--text-dim); }
+.hfc-stars { color: var(--accent3); font-size: 12px; letter-spacing: 1px; }
+
+/* ============================
+   ANNOUNCEMENT BAR
+============================ */
+.announcement {
+  background: var(--gradient); padding: 12px 0; text-align: center;
+  font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+}
+.announcement a { color: var(--bg); text-decoration: underline; margin-left: 8px; }
+
+/* ============================
+   CATEGORY PILLS
+============================ */
+.categories { padding: 48px 0 0; }
+.cat-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.cat-scroll::-webkit-scrollbar { height: 0; }
+.cat-pill {
+  flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 14px; font-weight: 500; color: var(--text-dim);
+  transition: var(--transition); cursor: pointer; white-space: nowrap;
+}
+.cat-pill:hover, .cat-pill.active {
+  background: rgba(0,212,255,0.1); border-color: var(--accent);
+  color: var(--accent);
+}
+.cat-pill .cat-icon { font-size: 18px; }
+.cat-count { font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 2px 8px; border-radius: 999px; }
+
+/* ============================
+   FEATURED PHONES
+============================ */
+.phones-filter { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 8px 18px; border-radius: 999px; font-size: 13px; font-weight: 500;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-dim); transition: var(--transition); cursor: pointer;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.sort-select {
+  margin-left: auto; background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 8px 16px; border-radius: 10px; font-size: 13px;
+  cursor: pointer; outline: none;
+}
+.sort-select:focus { border-color: var(--accent); }
+
+/* Phone Card */
+.phone-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition);
+  position: relative; display: flex; flex-direction: column;
+}
+.phone-card:hover {
+  border-color: rgba(0,212,255,0.3); transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), var(--glow);
+}
+.phone-card-badges { position: absolute; top: 16px; left: 16px; z-index: 2; display: flex; flex-direction: column; gap: 6px; }
+.phone-card-wish {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 50%;
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: var(--transition); cursor: pointer;
+}
+.phone-card-wish:hover, .phone-card-wish.active { background: rgba(239,68,68,0.15); border-color: var(--red); }
+.phone-card-img {
+  background: var(--bg2); padding: 32px; display: flex; align-items: center; justify-content: center;
+  min-height: 200px; position: relative; overflow: hidden;
+}
+.phone-card-img::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(to top, var(--surface), transparent);
+}
+.phone-img-placeholder {
+  font-size: 90px; position: relative; z-index: 1;
+  animation: gentle-bob 3s ease-in-out infinite;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+}
+@keyframes gentle-bob {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.phone-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+.phone-card-brand { font-size: 11px; color: var(--accent); font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.phone-card-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.phone-card-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.stars { color: var(--accent3); font-size: 13px; letter-spacing: 1px; }
+.rating-num { font-size: 13px; color: var(--text-dim); }
+.phone-card-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.spec-item { background: var(--bg2); border-radius: 10px; padding: 8px 10px; }
+.spec-key { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; }
+.spec-val { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-top: 1px; }
+.phone-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+.phone-price { }
+.price-current { font-family: var(--font-display); font-size: 26px; color: var(--text); letter-spacing: 0.02em; }
+.price-old { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
+.price-save { font-size: 11px; color: var(--green); font-weight: 600; }
+.phone-card-actions { display: flex; gap: 8px; }
+
+/* ============================
+   FEATURED / HERO PHONE CARD
+============================ */
+.featured-card {
+  grid-column: span 2; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; display: grid; grid-template-columns: 1fr 1fr;
+  transition: var(--transition); position: relative;
+}
+.featured-card:hover { border-color: rgba(0,212,255,0.3); box-shadow: var(--glow-strong); }
+.featured-img {
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px; position: relative; min-height: 360px; overflow: hidden;
+}
+.featured-img::before {
+  content:''; position: absolute; inset:0;
+  background: radial-gradient(ellipse at 40% 50%, rgba(0,212,255,0.12), transparent 60%);
+}
+.featured-phone-big { font-size: 160px; filter: drop-shadow(0 30px 60px rgba(0,212,255,0.2)); position: relative; z-index:1; }
+.featured-body { padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+.featured-tag { margin-bottom: 16px; }
+.featured-name { font-family: var(--font-display); font-size: 42px; letter-spacing: 0.03em; margin-bottom: 16px; }
+.featured-desc { color: var(--text-dim); font-size: 15px; line-height: 1.7; margin-bottom: 28px; }
+.featured-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+.featured-feature { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-dim); }
+.featured-feature-icon { width: 28px; height: 28px; background: rgba(0,212,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.featured-footer { display: flex; align-items: center; gap: 20px; }
+.featured-price { font-family: var(--font-display); font-size: 44px; color: var(--accent); }
+
+/* ============================
+   SPECS COMPARISON
+============================ */
+.comparison-section { background: var(--bg2); }
+.compare-controls { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+.compare-select-wrap { flex: 1; min-width: 200px; }
+.compare-select-wrap label { display: block; font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.compare-select {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 16px; border-radius: var(--radius);
+  font-size: 14px; cursor: pointer; outline: none; appearance: none;
+}
+.compare-select:focus { border-color: var(--accent); }
+
+.compare-table-wrap { overflow-x: auto; border-radius: var(--radius-lg); border: 1px solid var(--border); }
+.compare-table { width: 100%; border-collapse: collapse; }
+.compare-table thead { background: var(--surface); }
+.compare-table th { padding: 20px 24px; text-align: left; font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+.compare-table th:first-child { color: var(--text-dim); }
+.compare-table td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-dim); }
+.compare-table td:first-child { color: var(--text-muted); font-size: 13px; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: var(--surface); }
+.compare-winner { color: var(--accent) !important; font-weight: 700; }
+.compare-winner::after { content: ' ✓'; font-size: 12px; }
+.phone-col-header { display: flex; align-items: center; gap: 12px; }
+.phone-col-icon { font-size: 28px; }
+.phone-col-name { font-weight: 700; font-size: 14px; color: var(--text); font-family: var(--font-body); text-transform: none; letter-spacing: 0; }
+.phone-col-brand { font-size: 11px; color: var(--text-muted); }
+
+/* ============================
+   ACCESSORIES
+============================ */
+.acc-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition);
+}
+.acc-card:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.3); }
+.acc-img {
+  background: var(--bg2); padding: 28px; display: flex; align-items: center;
+  justify-content: center; min-height: 160px;
+}
+.acc-emoji { font-size: 64px; }
+.acc-body { padding: 18px; }
+.acc-cat { font-size: 10px; color: #a78bfa; font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.acc-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.acc-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
+.acc-footer { display: flex; align-items: center; justify-content: space-between; }
+.acc-price { font-family: var(--font-display); font-size: 22px; color: var(--text); }
+
+/* ============================
+   SERVICES
+============================ */
+.services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.service-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 32px; transition: var(--transition);
+  position: relative; overflow: hidden;
+}
+.service-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient); opacity: 0; transition: var(--transition);
+}
+.service-card:hover { border-color: rgba(0,212,255,0.2); transform: translateY(-3px); }
+.service-card:hover::before { opacity: 1; }
+.service-icon {
+  width: 56px; height: 56px; border-radius: 14px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+  background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15);
+}
+.service-icon.purple { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.15); }
+.service-icon.amber { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.15); }
+.service-icon.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.15); }
+.service-icon.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.15); }
+.service-name { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.service-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; }
+.service-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px; }
+.service-feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim); }
+.service-feature::before { content: '✓'; color: var(--accent); font-weight: 700; font-size: 12px; }
+.service-price-from { font-size: 12px; color: var(--text-muted); }
+.service-price { font-family: var(--font-display); font-size: 28px; color: var(--text); }
+
+/* ============================
+   REPAIR BOOKING FORM
+============================ */
+.booking-section { background: var(--bg3); }
+.booking-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.booking-form-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 40px;
+}
+.form-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.form-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-dim); margin-bottom: 8px; font-family: var(--font-mono); letter-spacing: 0.05em; }
+.form-control {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px; font-size: 14px;
+  color: var(--text); outline: none; transition: var(--transition);
+  appearance: none;
+}
+.form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+.form-control::placeholder { color: var(--text-muted); }
+textarea.form-control { resize: vertical; min-height: 100px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-submit { width: 100%; }
+
+.booking-info { padding-top: 8px; }
+.booking-info-title { font-family: var(--font-display); font-size: 38px; letter-spacing: 0.02em; margin-bottom: 20px; }
+.booking-steps { display: flex; flex-direction: column; gap: 0; }
+.booking-step { display: flex; gap: 20px; padding-bottom: 32px; position: relative; }
+.booking-step:not(:last-child)::after {
+  content:''; position: absolute; left: 19px; top: 40px; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.step-num {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--surface2);
+  border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--accent);
+  flex-shrink: 0; position: relative; z-index: 1;
+}
+.step-content { }
+.step-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.step-desc { font-size: 14px; color: var(--text-dim); line-height: 1.5; }
+
+/* ============================
+   BRAND STRIP
+============================ */
+.brands { padding: 48px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.brands-inner { display: flex; align-items: center; gap: 48px; overflow: hidden; }
+.brand-item {
+  flex-shrink: 0; font-family: var(--font-display); font-size: 24px;
+  letter-spacing: 0.08em; color: var(--surface2); transition: var(--transition);
+  cursor: pointer;
+}
+.brand-item:hover { color: var(--accent); }
+
+/* ============================
+   DEALS SECTION
+============================ */
+.deals-banner {
+  background: linear-gradient(135deg, var(--surface), var(--bg2));
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 40px 48px; display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 32px; margin-bottom: 32px; overflow: hidden; position: relative;
+}
+.deals-banner::before {
+  content:''; position: absolute; right: -60px; top: -60px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,158,11,0.08), transparent 60%);
+}
+.deals-title { font-family: var(--font-display); font-size: 42px; letter-spacing: 0.02em; }
+.deals-desc { color: var(--text-dim); font-size: 15px; margin-top: 8px; max-width: 480px; }
+.countdown { display: flex; gap: 16px; }
+.count-item { text-align: center; }
+.count-num {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 18px; min-width: 64px;
+  font-family: var(--font-display); font-size: 36px; color: var(--accent3);
+  letter-spacing: 0.04em; line-height: 1; display: block;
+}
+.count-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; font-family: var(--font-mono); }
+
+/* ============================
+   TESTIMONIALS
+============================ */
+.testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.testimonial-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px; transition: var(--transition);
+}
+.testimonial-card:hover { border-color: rgba(0,212,255,0.2); }
+.testimonial-rating { color: var(--accent3); font-size: 14px; letter-spacing: 2px; margin-bottom: 14px; }
+.testimonial-text { font-size: 15px; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+.testimonial-author { display: flex; align-items: center; gap: 12px; }
+.author-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; background: var(--bg2); border: 1px solid var(--border);
+}
+.author-name { font-weight: 700; font-size: 14px; }
+.author-meta { font-size: 12px; color: var(--text-muted); }
+.author-verified { font-size: 11px; color: var(--accent); font-family: var(--font-mono); }
+
+/* ============================
+   NEWSLETTER
+============================ */
+.newsletter-section {
+  background: linear-gradient(135deg, rgba(0,212,255,0.04), rgba(124,58,237,0.04));
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 64px; text-align: center; position: relative; overflow: hidden;
+}
+.newsletter-section::before {
+  content:''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+  width: 400px; height: 300px;
+  background: radial-gradient(ellipse, rgba(0,212,255,0.07), transparent 70%);
+}
+.newsletter-title { font-family: var(--font-display); font-size: 48px; letter-spacing: 0.03em; margin-bottom: 12px; position: relative; }
+.newsletter-desc { color: var(--text-dim); font-size: 16px; margin-bottom: 32px; }
+.newsletter-form { display: flex; gap: 12px; max-width: 480px; margin: 0 auto; }
+.newsletter-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 18px; font-size: 14px;
+  color: var(--text); outline: none;
+}
+.newsletter-input:focus { border-color: var(--accent); }
+.newsletter-input::placeholder { color: var(--text-muted); }
+
+/* ============================
+   FOOTER
+============================ */
+footer {
+  background: var(--bg2); border-top: 1px solid var(--border);
+  padding: 64px 0 0;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-brand { }
+.footer-logo { font-family: var(--font-display); font-size: 26px; letter-spacing: 0.08em; margin-bottom: 14px; }
+.footer-logo span { color: var(--accent); }
+.footer-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; max-width: 280px; margin-bottom: 20px; }
+.footer-socials { display: flex; gap: 10px; }
+.social-btn {
+  width: 36px; height: 36px; border-radius: 10px; background: var(--surface);
+  border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: var(--transition);
+}
+.social-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.1); }
+.footer-col h5 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--font-mono); color: var(--text); margin-bottom: 20px; }
+.footer-links { display: flex; flex-direction: column; gap: 10px; }
+.footer-link { font-size: 14px; color: var(--text-muted); transition: var(--transition); }
+.footer-link:hover { color: var(--accent); }
+.footer-bottom {
+  border-top: 1px solid var(--border); padding: 20px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px; color: var(--text-muted);
+}
+.footer-badges { display: flex; gap: 8px; }
+.payment-badge {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px; font-size: 12px; font-family: var(--font-mono);
+}
+
+/* ============================
+   QUICK VIEW MODAL
+============================ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none; transition: var(--transition);
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  width: 100%; max-width: 860px; max-height: 90vh; overflow-y: auto;
+  transform: scale(0.95); transition: var(--transition);
+}
+.modal-overlay.active .modal { transform: scale(1); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 32px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 20px; font-weight: 700; }
+.modal-close {
+  width: 36px; height: 36px; border-radius: 10px; background: var(--surface2);
+  border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; transition: var(--transition);
+}
+.modal-close:hover { border-color: var(--red); color: var(--red); }
+.modal-body { padding: 32px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.modal-img {
+  background: var(--bg2); border-radius: var(--radius); padding: 48px;
+  display: flex; align-items: center; justify-content: center; font-size: 120px;
+}
+.modal-info { }
+.modal-brand { font-size: 12px; color: var(--accent); font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.modal-name { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+.modal-price-wrap { margin-bottom: 20px; }
+.modal-price { font-family: var(--font-display); font-size: 38px; color: var(--accent); }
+.modal-price-old { font-size: 16px; color: var(--text-muted); text-decoration: line-through; margin-left: 8px; }
+.modal-specs-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 12px; }
+.modal-specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.modal-spec { background: var(--bg2); border-radius: 10px; padding: 10px 12px; }
+.modal-spec-key { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; }
+.modal-spec-val { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 2px; }
+.color-options { display: flex; gap: 8px; margin-bottom: 20px; }
+.color-option {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: var(--transition);
+}
+.color-option.selected, .color-option:hover { border-color: var(--accent); transform: scale(1.1); }
+.modal-actions { display: flex; gap: 10px; }
+.qty-control { display: flex; align-items: center; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.qty-btn { width: 36px; height: 40px; background: var(--surface2); border: none; color: var(--text); font-size: 18px; cursor: pointer; transition: var(--transition); }
+.qty-btn:hover { background: var(--accent); color: var(--bg); }
+.qty-num { width: 44px; text-align: center; font-weight: 700; font-size: 14px; }
+
+/* ============================
+   CART SIDEBAR
+============================ */
+.cart-sidebar {
+  position: fixed; right: 0; top: 0; bottom: 0; z-index: 2000;
+  width: 400px; background: var(--surface); border-left: 1px solid var(--border);
+  transform: translateX(100%); transition: 0.4s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+}
+.cart-sidebar.open { transform: translateX(0); }
+.cart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px; border-bottom: 1px solid var(--border);
+}
+.cart-header-title { font-size: 18px; font-weight: 700; }
+.cart-items { flex: 1; overflow-y: auto; padding: 24px; }
+.cart-item { display: flex; gap: 16px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.cart-item:last-child { border-bottom: none; }
+.cart-item-img { width: 72px; height: 72px; background: var(--bg2); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 40px; flex-shrink: 0; }
+.cart-item-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.cart-item-variant { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.cart-item-price { font-family: var(--font-display); font-size: 20px; color: var(--accent); }
+.cart-item-remove { font-size: 18px; color: var(--text-muted); cursor: pointer; transition: var(--transition); padding: 2px; }
+.cart-item-remove:hover { color: var(--red); }
+.cart-footer { padding: 24px; border-top: 1px solid var(--border); }
+.cart-subtotal { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-dim); }
+.cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.cart-total-num { font-family: var(--font-display); font-size: 28px; color: var(--accent); }
+.cart-empty { text-align: center; padding: 48px 24px; }
+.cart-empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.4; }
+.cart-empty-text { color: var(--text-muted); font-size: 15px; }
+
+/* ============================
+   TOAST NOTIFICATION
+============================ */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 3000;
+  font-size: 14px; font-weight: 500; transition: 0.4s cubic-bezier(0.4,0,0.2,1);
+  white-space: nowrap; min-width: 280px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast-icon { font-size: 20px; }
+.toast-close { margin-left: auto; cursor: pointer; color: var(--text-muted); font-size: 18px; }
+
+/* ============================
+   BACK TO TOP
+============================ */
+.back-to-top {
+  position: fixed; bottom: 32px; right: 32px; z-index: 1000;
+  width: 44px; height: 44px; background: var(--accent); color: var(--bg);
+  border-radius: 50%; border: none; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(0,212,255,0.3); transition: var(--transition);
+  opacity: 0; pointer-events: none; transform: translateY(16px);
+}
+.back-to-top.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+.back-to-top:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,212,255,0.45); }
+
+/* ============================
+   WISHLIST PAGE OVERLAY
+============================ */
+.wishlist-sidebar {
+  position: fixed; right: 0; top: 0; bottom: 0; z-index: 2000;
+  width: 420px; background: var(--surface); border-left: 1px solid var(--border);
+  transform: translateX(100%); transition: 0.4s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+}
+.wishlist-sidebar.open { transform: translateX(0); }
+.wishlist-items { flex: 1; overflow-y: auto; padding: 24px; }
+.wishlist-item { display: flex; gap: 14px; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); align-items: center; }
+.wishlist-item:last-child { border-bottom: none; }
+
+/* ============================
+   OVERLAY BACKGROUND
+============================ */
+.overlay-bg {
+  position: fixed; inset: 0; z-index: 1999; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: var(--transition);
+}
+.overlay-bg.active { opacity: 1; pointer-events: all; }
+
+/* ============================
+   RESPONSIVE
+============================ */
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2,1fr); }
+  .services-grid { grid-template-columns: repeat(2,1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .featured-card { grid-column: span 1; grid-template-columns: 1fr; }
+  .featured-img { min-height: 260px; }
+  .featured-phone-big { font-size: 100px; }
+  .booking-inner { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .nav-links { display: none; }
+  .mobile-toggle { display: flex; }
+  .search-bar { display: none; }
+  .modal-grid { grid-template-columns: 1fr; }
+  .cart-sidebar { width: 100%; }
+  .wishlist-sidebar { width: 100%; }
+  .deals-banner { grid-template-columns: 1fr; text-align: center; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .newsletter-form { flex-direction: column; }
+  .compare-controls { flex-direction: column; }
+  .section { padding: 60px 0; }
+}
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .hero-title { font-size: 44px; }
+  .hero-stats { flex-wrap: wrap; gap: 20px; }
+  .hero-actions { flex-wrap: wrap; }
+  .form-row { grid-template-columns: 1fr; }
+  .modal-actions { flex-wrap: wrap; }
+}
+
+/* ============================
+   ANIMATIONS
+============================ */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-up { animation: fade-in-up 0.6s ease forwards; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* Progress bar for specs */
+.spec-bar-wrap { margin-top: 6px; }
+.spec-bar-bg { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.spec-bar-fg { height: 100%; background: var(--gradient); border-radius: 2px; }
+
+/* Star rating interactive */
+.star-input { display: flex; gap: 4px; flex-direction: row-reverse; }
+.star-input input { display: none; }
+.star-input label { font-size: 20px; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
+.star-input label:hover, .star-input label:hover ~ label,
+.star-input input:checked ~ label { color: var(--accent3); }
+
+/* Tab system */
+.tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
+.tab-btn {
+  padding: 12px 20px; font-size: 14px; font-weight: 500; color: var(--text-muted);
+  background: none; border: none; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: var(--transition); cursor: pointer;
+}
+.tab-btn.active, .tab-btn:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* Scroll indicator */
+.scroll-hint { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.scroll-hint-line { flex: 1; height: 1px; background: var(--border); }
+
+/* Price filter */
+.price-range { display: flex; align-items: center; gap: 12px; }
+.range-input { flex: 1; accent-color: var(--accent); }
+
+/* Sticky cart indicator */
+.sticky-cart-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+  transform: translateY(100%); transition: var(--transition);
+}
+.sticky-cart-bar.show { transform: translateY(0); }
+
+/* Mobile nav overlay */
+.mobile-nav {
+  position: fixed; inset: 0; z-index: 1500; background: var(--surface);
+  transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4,0,0.2,1);
+  padding: 24px; display: flex; flex-direction: column;
+}
+.mobile-nav.open { transform: translateX(0); }
+.mobile-nav-close { align-self: flex-end; font-size: 24px; background: none; border: none; color: var(--text); cursor: pointer; padding: 4px; }
+.mobile-nav-links { display: flex; flex-direction: column; gap: 4px; margin-top: 24px; }
+.mobile-nav-link { padding: 14px 16px; border-radius: var(--radius); font-size: 16px; font-weight: 500; color: var(--text-dim); }
+.mobile-nav-link:hover { background: var(--surface2); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ============================
+     TOAST
+============================ -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✅</span>
+  <span id="toast-msg">Item added to cart!</span>
+  <span class="toast-close" onclick="hideToast()">✕</span>
+</div>
+
+<!-- ============================
+     OVERLAY BACKGROUND
+============================ -->
+<div class="overlay-bg" id="overlay-bg" onclick="closeAll()"></div>
+
+<!-- ============================
+     CART SIDEBAR
+============================ -->
+<div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <span class="cart-header-title">🛒 Your Cart</span>
+    <button class="modal-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛍️</div>
+      <p class="cart-empty-text">Your cart is empty.<br>Start shopping!</p>
     </div>
+  </div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-subtotal"><span>Subtotal</span><span id="cart-subtotal">$0</span></div>
+    <div class="cart-subtotal"><span>Shipping</span><span style="color:var(--green)">FREE</span></div>
+    <div class="cart-total"><span>Total</span><span class="cart-total-num" id="cart-total">$0</span></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px" onclick="showToast('✅','Order placed successfully! (Demo)')">Checkout →</button>
+    <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="toggleCart()">Continue Shopping</button>
+  </div>
+</div>
 
-    <!-- ============================ OVERLAY BACKGROUND ============================ -->
-    <div class="overlay-bg" id="overlay-bg" onclick="closeAll()"></div>
+<!-- ============================
+     WISHLIST SIDEBAR
+============================ -->
+<div class="wishlist-sidebar" id="wishlist-sidebar">
+  <div class="cart-header">
+    <span class="cart-header-title">❤️ Wishlist</span>
+    <button class="modal-close" onclick="toggleWishlist()">✕</button>
+  </div>
+  <div class="wishlist-items" id="wishlist-items">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">💝</div>
+      <p class="cart-empty-text">No saved items yet.<br>Heart any phone to add!</p>
+    </div>
+  </div>
+</div>
 
-    <!-- ============================ CART SIDEBAR ============================ -->
-    <div class="cart-sidebar" id="cart-sidebar">
-      <div class="cart-header">
-        <span class="cart-header-title">🛒 Your Cart</span>
-        <button class="modal-close" onclick="toggleCart()">✕</button>
-      </div>
-      <div class="cart-items" id="cart-items">
-        <div class="cart-empty">
-          <div class="cart-empty-icon">🛍️</div>
-          <p class="cart-empty-text">
-            Your cart is empty.<br />Start shopping!
-          </p>
+<!-- ============================
+     QUICK VIEW MODAL
+============================ -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Quick View</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-img" id="modal-img">📱</div>
+        <div class="modal-info">
+          <div class="modal-brand" id="modal-brand">BRAND</div>
+          <div class="modal-name" id="modal-name">Phone Name</div>
+          <div class="modal-price-wrap">
+            <span class="modal-price" id="modal-price">$999</span>
+            <span class="modal-price-old" id="modal-price-old"></span>
+          </div>
+          <div class="modal-specs-title">Specifications</div>
+          <div class="modal-specs-grid" id="modal-specs"></div>
+          <div style="margin-bottom:16px">
+            <div class="modal-specs-title">Color</div>
+            <div class="color-options" id="modal-colors"></div>
+          </div>
+          <div style="margin-bottom:20px">
+            <div class="modal-specs-title">Storage</div>
+            <div style="display:flex;gap:8px" id="modal-storage"></div>
+          </div>
+          <div class="modal-actions">
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <span class="qty-num" id="modal-qty">1</span>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="addToCartFromModal()">Add to Cart</button>
+            <button class="btn btn-outline btn-icon-lg" onclick="addToWishlistFromModal()" id="modal-wish-btn">♡</button>
+          </div>
         </div>
-      </div>
-      <div class="cart-footer" id="cart-footer" style="display: none">
-        <div class="cart-subtotal">
-          <span>Subtotal</span><span id="cart-subtotal">$0</span>
-        </div>
-        <div class="cart-subtotal">
-          <span>Shipping</span><span style="color: var(--green)">FREE</span>
-        </div>
-        <div class="cart-total">
-          <span>Total</span
-          ><span class="cart-total-num" id="cart-total">$0</span>
-        </div>
-        <button
-          class="btn btn-primary"
-          style="width: 100%; justify-content: center; margin-bottom: 10px"
-          onclick="showToast('✅', 'Order placed successfully! (Demo)')"
-        >
-          Checkout →
-        </button>
-        <button
-          class="btn btn-outline"
-          style="width: 100%; justify-content: center"
-          onclick="toggleCart()"
-        >
-          Continue Shopping
-        </button>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- ============================ WISHLIST SIDEBAR ============================ -->
-    <div class="wishlist-sidebar" id="wishlist-sidebar">
-      <div class="cart-header">
-        <span class="cart-header-title">❤️ Wishlist</span>
-        <button class="modal-close" onclick="toggleWishlist()">✕</button>
-      </div>
-      <div class="wishlist-items" id="wishlist-items">
-        <div class="cart-empty">
-          <div class="cart-empty-icon">💝</div>
-          <p class="cart-empty-text">
-            No saved items yet.<br />Heart any phone to add!
-          </p>
-        </div>
-      </div>
+<!-- ============================
+     MOBILE NAV
+============================ -->
+<div class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-close" onclick="toggleMobileNav()">✕</button>
+  <a href="#home" class="mobile-nav-link" onclick="toggleMobileNav()">🏠 Home</a>
+  <a href="#phones" class="mobile-nav-link" onclick="toggleMobileNav()">📱 Smartphones</a>
+  <a href="#accessories" class="mobile-nav-link" onclick="toggleMobileNav()">🎧 Accessories</a>
+  <a href="#services" class="mobile-nav-link" onclick="toggleMobileNav()">🔧 Services</a>
+  <a href="#compare" class="mobile-nav-link" onclick="toggleMobileNav()">⚖️ Compare</a>
+  <a href="#booking" class="mobile-nav-link" onclick="toggleMobileNav()">📅 Repair Booking</a>
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="toggleMobileNav()">Get Started</button>
+  </div>
+</div>
+
+<!-- ============================
+     TOP BAR
+============================ -->
+<div class="topbar">
+  <div class="container">
+    <div>📦 Free shipping on orders over $99 | 📞 +1 (800) NEXUS-01</div>
+    <div class="topbar-links">
+      <a href="#services">Repair Services</a>
+      <a href="#booking">Track Order</a>
+      <a href="#">Store Locator</a>
     </div>
+  </div>
+</div>
 
-    <!-- ============================ QUICK VIEW MODAL ============================ -->
-    <div
-      class="modal-overlay"
-      id="modal-overlay"
-      onclick="if (event.target === this) closeModal();"
-    >
-      <div class="modal" id="modal">
-        <div class="modal-header">
-          <span class="modal-title" id="modal-title">Quick View</span>
-          <button class="modal-close" onclick="closeModal()">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="modal-grid">
-            <div class="modal-img" id="modal-img">📱</div>
-            <div class="modal-info">
-              <div class="modal-brand" id="modal-brand">BRAND</div>
-              <div class="modal-name" id="modal-name">Phone Name</div>
-              <div class="modal-price-wrap">
-                <span class="modal-price" id="modal-price">$999</span>
-                <span class="modal-price-old" id="modal-price-old"></span>
-              </div>
-              <div class="modal-specs-title">Specifications</div>
-              <div class="modal-specs-grid" id="modal-specs"></div>
-              <div style="margin-bottom: 16px">
-                <div class="modal-specs-title">Color</div>
-                <div class="color-options" id="modal-colors"></div>
-              </div>
-              <div style="margin-bottom: 20px">
-                <div class="modal-specs-title">Storage</div>
-                <div style="display: flex; gap: 8px" id="modal-storage"></div>
-              </div>
-              <div class="modal-actions">
-                <div class="qty-control">
-                  <button class="qty-btn" onclick="changeQty(-1)">−</button>
-                  <span class="qty-num" id="modal-qty">1</span>
-                  <button class="qty-btn" onclick="changeQty(1)">+</button>
-                </div>
-                <button
-                  class="btn btn-primary"
-                  style="flex: 1; justify-content: center"
-                  onclick="addToCartFromModal()"
-                >
-                  Add to Cart
-                </button>
-                <button
-                  class="btn btn-outline btn-icon-lg"
-                  onclick="addToWishlistFromModal()"
-                  id="modal-wish-btn"
-                >
-                  ♡
-                </button>
-              </div>
+<!-- ============================
+     HEADER / NAV
+============================ -->
+<header id="header">
+  <nav>
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#home" class="logo">
+          <div class="logo-icon">⚡</div>
+          NEX<span>US</span>
+        </a>
+        <div class="nav-links">
+          <a href="#home" class="nav-link active">Home</a>
+          <div class="nav-item">
+            <a href="#phones" class="nav-link">Phones ▾</a>
+            <div class="dropdown">
+              <a href="#phones" class="dropdown-item"><span class="di-icon">📱</span><div><div style="font-weight:600;color:var(--text)">All Smartphones</div><div style="font-size:12px">Browse full catalog</div></div></a>
+              <a href="#phones" class="dropdown-item"><span class="di-icon">🏆</span><div><div style="font-weight:600;color:var(--text)">Best Sellers</div><div style="font-size:12px">Top rated phones</div></div></a>
+              <a href="#phones" class="dropdown-item"><span class="di-icon">🆕</span><div><div style="font-weight:600;color:var(--text)">New Arrivals</div><div style="font-size:12px">Just landed</div></div></a>
+              <a href="#phones" class="dropdown-item"><span class="di-icon">💰</span><div><div style="font-weight:600;color:var(--text)">Budget Picks</div><div style="font-size:12px">Under $500</div></div></a>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================ MOBILE NAV ============================ -->
-    <div class="mobile-nav" id="mobile-nav">
-      <button class="mobile-nav-close" onclick="toggleMobileNav()">✕</button>
-      <a href="#home" class="mobile-nav-link" onclick="toggleMobileNav()"
-        >🏠 Home</a
-      >
-      <a href="#phones" class="mobile-nav-link" onclick="toggleMobileNav()"
-        >📱 Smartphones</a
-      >
-      <a href="#accessories" class="mobile-nav-link" onclick="toggleMobileNav()"
-        >🎧 Accessories</a
-      >
-      <a href="#services" class="mobile-nav-link" onclick="toggleMobileNav()"
-        >🔧 Services</a
-      >
-      <a href="#compare" class="mobile-nav-link" onclick="toggleMobileNav()"
-        >⚖️ Compare</a
-      >
-      <a href="#booking" class="mobile-nav-link" onclick="toggleMobileNav()"
-        >📅 Repair Booking</a
-      >
-      <div
-        style="
-          margin-top: 24px;
-          padding-top: 24px;
-          border-top: 1px solid var(--border);
-        "
-      >
-        <button
-          class="btn btn-primary"
-          style="width: 100%; justify-content: center"
-          onclick="toggleMobileNav()"
-        >
-          Get Started
-        </button>
-      </div>
-    </div>
-
-    <!-- ============================ TOP BAR ============================ -->
-    <div class="topbar">
-      <div class="container">
-        <div>📦 Free shipping on orders over $99 | 📞 +1 (800) NEXUS-01</div>
-        <div class="topbar-links">
-          <a href="#services">Repair Services</a>
-          <a href="#booking">Track Order</a>
-          <a href="#">Store Locator</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================ HEADER / NAV ============================ -->
-    <header id="header">
-      <nav>
-        <div class="container">
-          <div class="nav-inner">
-            <a href="#home" class="logo">
-              <div class="logo-icon">⚡</div>
-              NEX<span>US</span>
-            </a>
-            <div class="nav-links">
-              <a href="#home" class="nav-link active">Home</a>
-              <div class="nav-item">
-                <a href="#phones" class="nav-link">Phones ▾</a>
-                <div class="dropdown">
-                  <a href="#phones" class="dropdown-item"
-                    ><span class="di-icon">📱</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        All Smartphones
-                      </div>
-                      <div style="font-size: 12px">Browse full catalog</div>
-                    </div></a
-                  >
-                  <a href="#phones" class="dropdown-item"
-                    ><span class="di-icon">🏆</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Best Sellers
-                      </div>
-                      <div style="font-size: 12px">Top rated phones</div>
-                    </div></a
-                  >
-                  <a href="#phones" class="dropdown-item"
-                    ><span class="di-icon">🆕</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        New Arrivals
-                      </div>
-                      <div style="font-size: 12px">Just landed</div>
-                    </div></a
-                  >
-                  <a href="#phones" class="dropdown-item"
-                    ><span class="di-icon">💰</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Budget Picks
-                      </div>
-                      <div style="font-size: 12px">Under $500</div>
-                    </div></a
-                  >
-                </div>
-              </div>
-              <div class="nav-item">
-                <a href="#accessories" class="nav-link">Accessories ▾</a>
-                <div class="dropdown">
-                  <a href="#accessories" class="dropdown-item"
-                    ><span class="di-icon">🎧</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Headphones
-                      </div>
-                    </div></a
-                  >
-                  <a href="#accessories" class="dropdown-item"
-                    ><span class="di-icon">🔋</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Power Banks
-                      </div>
-                    </div></a
-                  >
-                  <a href="#accessories" class="dropdown-item"
-                    ><span class="di-icon">🛡️</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Cases & Covers
-                      </div>
-                    </div></a
-                  >
-                  <a href="#accessories" class="dropdown-item"
-                    ><span class="di-icon">🔌</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Chargers
-                      </div>
-                    </div></a
-                  >
-                  <a href="#accessories" class="dropdown-item"
-                    ><span class="di-icon">⌚</span>
-                    <div>
-                      <div style="font-weight: 600; color: var(--text)">
-                        Smart Watches
-                      </div>
-                    </div></a
-                  >
-                </div>
-              </div>
-              <a href="#compare" class="nav-link">Compare</a>
-              <a href="#services" class="nav-link">Services</a>
-              <a href="#booking" class="nav-link">Repair</a>
-            </div>
-            <div class="nav-actions">
-              <div class="search-bar">
-                <span class="search-icon">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search phones, specs…"
-                  id="search-input"
-                  oninput="handleSearch(this.value)"
-                />
-              </div>
-              <button
-                class="cart-btn"
-                onclick="toggleWishlist()"
-                title="Wishlist"
-                style="font-size: 20px"
-              >
-                ♡
-              </button>
-              <button class="cart-btn" onclick="toggleCart()" title="Cart">
-                🛒
-                <span class="cart-count" id="cart-count">0</span>
-              </button>
-              <button class="btn btn-primary btn-sm">Sign In</button>
-              <button class="mobile-toggle" onclick="toggleMobileNav()">
-                <span></span><span></span><span></span>
-              </button>
+          <div class="nav-item">
+            <a href="#accessories" class="nav-link">Accessories ▾</a>
+            <div class="dropdown">
+              <a href="#accessories" class="dropdown-item"><span class="di-icon">🎧</span><div><div style="font-weight:600;color:var(--text)">Headphones</div></div></a>
+              <a href="#accessories" class="dropdown-item"><span class="di-icon">🔋</span><div><div style="font-weight:600;color:var(--text)">Power Banks</div></div></a>
+              <a href="#accessories" class="dropdown-item"><span class="di-icon">🛡️</span><div><div style="font-weight:600;color:var(--text)">Cases & Covers</div></div></a>
+              <a href="#accessories" class="dropdown-item"><span class="di-icon">🔌</span><div><div style="font-weight:600;color:var(--text)">Chargers</div></div></a>
+              <a href="#accessories" class="dropdown-item"><span class="di-icon">⌚</span><div><div style="font-weight:600;color:var(--text)">Smart Watches</div></div></a>
             </div>
           </div>
+          <a href="#compare" class="nav-link">Compare</a>
+          <a href="#services" class="nav-link">Services</a>
+          <a href="#booking" class="nav-link">Repair</a>
         </div>
-      </nav>
-    </header>
-
-    <!-- ============================ ANNOUNCEMENT ============================ -->
-    <div class="announcement" id="home">
-      🔥 NEXUS MEGA SALE — Up to 40% OFF flagship phones this week!
-      <a href="#phones">Shop Now →</a>
-    </div>
-
-    <!-- ============================ HERO SECTION ============================ -->
-    <section class="hero">
-      <div class="hero-bg"></div>
-      <div class="hero-grid"></div>
-      <div class="container">
-        <div class="hero-inner">
-          <div class="hero-content">
-            <div class="hero-badge animate-up">
-              <span class="badge badge-accent">⚡ 2025 Collection</span>
-            </div>
-            <h1 class="hero-title animate-up delay-1">
-              <div class="line-1">POWER</div>
-              <div class="line-2">YOUR</div>
-              <div class="line-3">WORLD</div>
-            </h1>
-            <p class="hero-desc animate-up delay-2">
-              The ultimate destination for premium smartphones, accessories, and
-              expert repair services. Discover technology that transforms every
-              moment.
-            </p>
-            <div class="hero-actions animate-up delay-3">
-              <a href="#phones" class="btn btn-primary">Explore Phones →</a>
-              <a href="#compare" class="btn btn-outline">Compare Models</a>
-            </div>
-            <div class="hero-stats animate-up delay-4">
-              <div>
-                <div class="hero-stat-num">500<span>+</span></div>
-                <div class="hero-stat-label">Phones</div>
-              </div>
-              <div>
-                <div class="hero-stat-num">98<span>k</span></div>
-                <div class="hero-stat-label">Happy Customers</div>
-              </div>
-              <div>
-                <div class="hero-stat-num">4.9<span>★</span></div>
-                <div class="hero-stat-label">Avg Rating</div>
-              </div>
-            </div>
+        <div class="nav-actions">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search phones, specs…" id="search-input" oninput="handleSearch(this.value)">
           </div>
-          <div class="hero-visual animate-up delay-2">
-            <div class="hero-phone-wrap">
-              <div class="hero-phone-glow"></div>
-              <div class="hero-phone">
-                <div class="phone-screen">
-                  <div class="phone-screen-inner">
-                    <div class="phone-status">
-                      <span>9:41</span><span>🔋 98%</span>
-                    </div>
-                    <div class="phone-notch"></div>
-                    <div class="phone-app-grid">
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(0, 212, 255, 0.15)"
-                      >
-                        📷
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(124, 58, 237, 0.15)"
-                      >
-                        🎵
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(34, 197, 94, 0.15)"
-                      >
-                        💬
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(245, 158, 11, 0.15)"
-                      >
-                        🗺️
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(239, 68, 68, 0.15)"
-                      >
-                        ▶️
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(0, 212, 255, 0.1)"
-                      >
-                        🌐
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(124, 58, 237, 0.1)"
-                      >
-                        📸
-                      </div>
-                      <div
-                        class="phone-app-icon"
-                        style="background: rgba(245, 158, 11, 0.1)"
-                      >
-                        ⚙️
-                      </div>
-                    </div>
-                    <div class="phone-widget">
-                      <div class="phone-widget-title">Battery & Storage</div>
-                      <div class="phone-bar">
-                        <div class="phone-bar-fill" style="width: 90%"></div>
-                      </div>
-                      <div class="phone-bar">
-                        <div class="phone-bar-fill" style="width: 65%"></div>
-                      </div>
-                    </div>
-                    <div style="display: flex; gap: 6px">
-                      <div class="phone-widget" style="flex: 1">
-                        <div class="phone-widget-title">Camera</div>
-                        <div
-                          style="
-                            font-size: 16px;
-                            margin-top: 4px;
-                            text-align: center;
-                          "
-                        >
-                          200MP
-                        </div>
-                      </div>
-                      <div class="phone-widget" style="flex: 1">
-                        <div class="phone-widget-title">5G Speed</div>
-                        <div
-                          style="
-                            font-size: 16px;
-                            margin-top: 4px;
-                            text-align: center;
-                            color: var(--green);
-                          "
-                        >
-                          ON
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="hero-floating-card hfc-1">
-                <div class="hfc-label">Today's Deal</div>
-                <div class="hfc-value">$200 OFF</div>
-                <div class="hfc-sub">Galaxy S25 Ultra</div>
-              </div>
-              <div class="hero-floating-card hfc-2">
-                <div class="hfc-stars">★★★★★</div>
-                <div class="hfc-sub" style="margin-top: 4px">
-                  "Best phone store!"
-                </div>
-                <div class="hfc-label" style="margin-top: 4px">
-                  — 12k+ reviews
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================ BRANDS ============================ -->
-    <div class="brands">
-      <div class="container">
-        <div class="brands-inner">
-          <div class="brand-item">APPLE</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">SAMSUNG</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">GOOGLE</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">ONEPLUS</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">XIAOMI</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">SONY</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">MOTOROLA</div>
-          <div style="color: var(--border); font-size: 20px">|</div>
-          <div class="brand-item">NOKIA</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================ CATEGORIES ============================ -->
-    <div class="categories">
-      <div class="container">
-        <div class="cat-scroll">
-          <div class="cat-pill active" onclick="filterPhones('all', this)">
-            <span class="cat-icon">📱</span> All Phones
-            <span class="cat-count">12</span>
-          </div>
-          <div class="cat-pill" onclick="filterPhones('apple', this)">
-            <span class="cat-icon">🍎</span> Apple
-            <span class="cat-count">3</span>
-          </div>
-          <div class="cat-pill" onclick="filterPhones('samsung', this)">
-            <span class="cat-icon">🌟</span> Samsung
-            <span class="cat-count">3</span>
-          </div>
-          <div class="cat-pill" onclick="filterPhones('google', this)">
-            <span class="cat-icon">🔍</span> Google
-            <span class="cat-count">2</span>
-          </div>
-          <div class="cat-pill" onclick="filterPhones('oneplus', this)">
-            <span class="cat-icon">➕</span> OnePlus
-            <span class="cat-count">2</span>
-          </div>
-          <div class="cat-pill" onclick="filterPhones('xiaomi', this)">
-            <span class="cat-icon">🔴</span> Xiaomi
-            <span class="cat-count">2</span>
-          </div>
-          <div class="cat-pill" onclick="filterPhonesPrice('budget', this)">
-            <span class="cat-icon">💸</span> Under $500
-          </div>
-          <div class="cat-pill" onclick="filterPhonesPrice('flagship', this)">
-            <span class="cat-icon">👑</span> Flagship
-          </div>
-          <div class="cat-pill" onclick="filterPhones('5g', this)">
-            <span class="cat-icon">📡</span> 5G Ready
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================ DEALS BANNER ============================ -->
-    <section class="section" id="deals">
-      <div class="container">
-        <div class="deals-banner">
-          <div>
-            <span class="badge badge-amber" style="margin-bottom: 12px"
-              >🔥 Flash Deal</span
-            >
-            <div class="deals-title">LIMITED TIME OFFER</div>
-            <p class="deals-desc">
-              Save up to 40% on selected flagship models. Offer ends when the
-              timer runs out — don't miss it!
-            </p>
-            <div style="margin-top: 20px">
-              <a href="#phones" class="btn btn-primary">Grab the Deal →</a>
-            </div>
-          </div>
-          <div>
-            <div class="countdown">
-              <div class="count-item">
-                <span class="count-num" id="cd-h">08</span>
-                <span class="count-label">Hours</span>
-              </div>
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  padding-top: 8px;
-                  font-family: var(--font-display);
-                  font-size: 32px;
-                  color: var(--accent3);
-                "
-              >
-                :
-              </div>
-              <div class="count-item">
-                <span class="count-num" id="cd-m">34</span>
-                <span class="count-label">Minutes</span>
-              </div>
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  padding-top: 8px;
-                  font-family: var(--font-display);
-                  font-size: 32px;
-                  color: var(--accent3);
-                "
-              >
-                :
-              </div>
-              <div class="count-item">
-                <span class="count-num" id="cd-s">59</span>
-                <span class="count-label">Seconds</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================ SMARTPHONES SECTION ============================ -->
-    <section class="section" id="phones">
-      <div class="container">
-        <div
-          class="flex-between"
-          style="margin-bottom: 16px; flex-wrap: wrap; gap: 16px"
-        >
-          <div>
-            <div class="section-label">CATALOG</div>
-            <h2 class="section-title">
-              SMART<span class="text-accent">PHONES</span>
-            </h2>
-          </div>
-        </div>
-        <div
-          class="flex-between"
-          style="margin-bottom: 24px; flex-wrap: wrap; gap: 12px"
-        >
-          <div class="phones-filter" id="phones-filter">
-            <button
-              class="filter-btn active"
-              onclick="filterPhones('all', null, this)"
-            >
-              All
-            </button>
-            <button
-              class="filter-btn"
-              onclick="filterPhones('apple', null, this)"
-            >
-              Apple
-            </button>
-            <button
-              class="filter-btn"
-              onclick="filterPhones('samsung', null, this)"
-            >
-              Samsung
-            </button>
-            <button
-              class="filter-btn"
-              onclick="filterPhones('google', null, this)"
-            >
-              Google
-            </button>
-            <button
-              class="filter-btn"
-              onclick="filterPhones('oneplus', null, this)"
-            >
-              OnePlus
-            </button>
-            <button
-              class="filter-btn"
-              onclick="filterPhones('xiaomi', null, this)"
-            >
-              Xiaomi
-            </button>
-          </div>
-          <select class="sort-select" onchange="sortPhones(this.value)">
-            <option value="default">Sort: Featured</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="rating">Best Rated</option>
-            <option value="newest">Newest First</option>
-          </select>
-        </div>
-        <div class="grid-4" id="phones-grid">
-          <!-- Dynamically rendered by JS -->
-        </div>
-        <div style="text-align: center; margin-top: 40px">
-          <button
-            class="btn btn-outline"
-            onclick="showToast('📱', 'Loading more phones...')"
-          >
-            Load More Phones
+          <button class="cart-btn" onclick="toggleWishlist()" title="Wishlist" style="font-size:20px">♡</button>
+          <button class="cart-btn" onclick="toggleCart()" title="Cart">
+            🛒
+            <span class="cart-count" id="cart-count">0</span>
+          </button>
+          <button class="btn btn-primary btn-sm">Sign In</button>
+          <button class="mobile-toggle" onclick="toggleMobileNav()">
+            <span></span><span></span><span></span>
           </button>
         </div>
       </div>
-    </section>
+    </div>
+  </nav>
+</header>
 
-    <!-- ============================ COMPARE SECTION ============================ -->
-    <section class="section comparison-section" id="compare">
-      <div class="container">
-        <div class="section-label">SIDE BY SIDE</div>
-        <h2 class="section-title">
-          COMPARE <span class="text-accent">MODELS</span>
-        </h2>
-        <p class="section-subtitle">
-          Select up to three phones and compare their specifications in detail.
-        </p>
-        <div style="height: 40px"></div>
-        <div class="compare-controls">
-          <div class="compare-select-wrap">
-            <label>Phone 1</label>
-            <select
-              class="compare-select"
-              id="compare-1"
-              onchange="renderComparison()"
-            >
-              <option value="0">iPhone 16 Pro Max</option>
-              <option value="1">Samsung Galaxy S25 Ultra</option>
-              <option value="2">Google Pixel 9 Pro</option>
-              <option value="3">OnePlus 13</option>
-              <option value="4">Xiaomi 15 Ultra</option>
-              <option value="5">iPhone 15</option>
-              <option value="6">Galaxy A55</option>
-              <option value="7">Pixel 8a</option>
-            </select>
-          </div>
-          <div class="compare-select-wrap">
-            <label>Phone 2</label>
-            <select
-              class="compare-select"
-              id="compare-2"
-              onchange="renderComparison()"
-            >
-              <option value="0">iPhone 16 Pro Max</option>
-              <option value="1" selected>Samsung Galaxy S25 Ultra</option>
-              <option value="2">Google Pixel 9 Pro</option>
-              <option value="3">OnePlus 13</option>
-              <option value value="4">Xiaomi 15 Ultra</option>
-              <option value="5">iPhone 15</option>
-              <option value="6">Galaxy A55</option>
-              <option value="7">Pixel 8a</option>
-            </select>
-          </div>
-          <div class="compare-select-wrap">
-            <label>Phone 3 (Optional)</label>
-            <select
-              class="compare-select"
-              id="compare-3"
-              onchange="renderComparison()"
-            >
-              <option value="-1">— None —</option>
-              <option value="0">iPhone 16 Pro Max</option>
-              <option value="1">Samsung Galaxy S25 Ultra</option>
-              <option value="2" selected>Google Pixel 9 Pro</option>
-              <option value="3">OnePlus 13</option>
-              <option value="4">Xiaomi 15 Ultra</option>
-              <option value="5">iPhone 15</option>
-              <option value="6">Galaxy A55</option>
-              <option value="7">Pixel 8a</option>
-            </select>
-          </div>
-        </div>
-        <div class="compare-table-wrap">
-          <table class="compare-table" id="compare-table"></table>
-        </div>
-      </div>
-    </section>
+<!-- ============================
+     ANNOUNCEMENT
+============================ -->
+<div class="announcement" id="home">
+  🔥 NEXUS MEGA SALE — Up to 40% OFF flagship phones this week!
+  <a href="#phones">Shop Now →</a>
+</div>
 
-    <!-- ============================ ACCESSORIES ============================ -->
-    <section class="section" id="accessories">
-      <div class="container">
-        <div
-          class="flex-between"
-          style="margin-bottom: 40px; flex-wrap: wrap; gap: 16px"
-        >
+<!-- ============================
+     HERO SECTION
+============================ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge animate-up">
+          <span class="badge badge-accent">⚡ 2025 Collection</span>
+        </div>
+        <h1 class="hero-title animate-up delay-1">
+          <div class="line-1">POWER</div>
+          <div class="line-2">YOUR</div>
+          <div class="line-3">WORLD</div>
+        </h1>
+        <p class="hero-desc animate-up delay-2">The ultimate destination for premium smartphones, accessories, and expert repair services. Discover technology that transforms every moment.</p>
+        <div class="hero-actions animate-up delay-3">
+          <a href="#phones" class="btn btn-primary">Explore Phones →</a>
+          <a href="#compare" class="btn btn-outline">Compare Models</a>
+        </div>
+        <div class="hero-stats animate-up delay-4">
           <div>
-            <div class="section-label">EXTRAS</div>
-            <h2 class="section-title">
-              ACCES<span class="text-accent">SORIES</span>
-            </h2>
-            <p class="section-subtitle">
-              Enhance your smartphone experience with premium accessories.
-            </p>
+            <div class="hero-stat-num">500<span>+</span></div>
+            <div class="hero-stat-label">Phones</div>
           </div>
-          <div
-            class="tabs"
-            style="align-self: flex-end; border-bottom: none; gap: 8px"
-          >
-            <button class="filter-btn active" onclick="filterAcc('all', this)">
-              All
-            </button>
-            <button class="filter-btn" onclick="filterAcc('audio', this)">
-              Audio
-            </button>
-            <button class="filter-btn" onclick="filterAcc('power', this)">
-              Power
-            </button>
-            <button class="filter-btn" onclick="filterAcc('protection', this)">
-              Protection
-            </button>
-            <button class="filter-btn" onclick="filterAcc('wearable', this)">
-              Wearables
-            </button>
-          </div>
-        </div>
-        <div class="grid-4" id="acc-grid">
-          <!-- Dynamically rendered -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================ SERVICES ============================ -->
-    <section class="section" style="background: var(--bg2)" id="services">
-      <div class="container">
-        <div style="text-align: center; margin-bottom: 56px">
-          <div class="section-label" style="justify-content: center">
-            EXPERT CARE
-          </div>
-          <h2 class="section-title">
-            OUR <span class="text-accent">SERVICES</span>
-          </h2>
-          <p class="section-subtitle" style="margin: 12px auto 0">
-            Professional smartphone services by certified technicians.
-          </p>
-        </div>
-        <div class="services-grid" id="services-grid">
-          <!-- Dynamically rendered -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================ REPAIR BOOKING ============================ -->
-    <section class="section booking-section" id="booking">
-      <div class="container">
-        <div class="booking-inner">
           <div>
-            <div class="section-label">BOOK A REPAIR</div>
-            <div class="booking-info-title">
-              FAST &<br /><span class="text-accent">RELIABLE</span><br />REPAIRS
-            </div>
-            <p class="section-subtitle" style="margin-bottom: 36px">
-              Our certified technicians fix your device quickly and
-              professionally. Most repairs completed same day.
-            </p>
-            <div class="booking-steps">
-              <div class="booking-step">
-                <div class="step-num">01</div>
-                <div class="step-content">
-                  <div class="step-title">Submit Your Request</div>
-                  <div class="step-desc">
-                    Fill out the form with your device details and the issue
-                    you're experiencing.
-                  </div>
+            <div class="hero-stat-num">98<span>k</span></div>
+            <div class="hero-stat-label">Happy Customers</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">4.9<span>★</span></div>
+            <div class="hero-stat-label">Avg Rating</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual animate-up delay-2">
+        <div class="hero-phone-wrap">
+          <div class="hero-phone-glow"></div>
+          <div class="hero-phone">
+            <div class="phone-screen">
+              <div class="phone-screen-inner">
+                <div class="phone-status">
+                  <span>9:41</span><span>🔋 98%</span>
                 </div>
-              </div>
-              <div class="booking-step">
-                <div class="step-num">02</div>
-                <div class="step-content">
-                  <div class="step-title">Get a Quote</div>
-                  <div class="step-desc">
-                    We'll assess your device and send you a transparent quote
-                    within 30 minutes.
-                  </div>
+                <div class="phone-notch"></div>
+                <div class="phone-app-grid">
+                  <div class="phone-app-icon" style="background:rgba(0,212,255,0.15)">📷</div>
+                  <div class="phone-app-icon" style="background:rgba(124,58,237,0.15)">🎵</div>
+                  <div class="phone-app-icon" style="background:rgba(34,197,94,0.15)">💬</div>
+                  <div class="phone-app-icon" style="background:rgba(245,158,11,0.15)">🗺️</div>
+                  <div class="phone-app-icon" style="background:rgba(239,68,68,0.15)">▶️</div>
+                  <div class="phone-app-icon" style="background:rgba(0,212,255,0.1)">🌐</div>
+                  <div class="phone-app-icon" style="background:rgba(124,58,237,0.1)">📸</div>
+                  <div class="phone-app-icon" style="background:rgba(245,158,11,0.1)">⚙️</div>
                 </div>
-              </div>
-              <div class="booking-step">
-                <div class="step-num">03</div>
-                <div class="step-content">
-                  <div class="step-title">Drop Off or Mail In</div>
-                  <div class="step-desc">
-                    Visit our store or ship your device to us — we provide a
-                    prepaid label.
-                  </div>
+                <div class="phone-widget">
+                  <div class="phone-widget-title">Battery & Storage</div>
+                  <div class="phone-bar"><div class="phone-bar-fill" style="width:90%"></div></div>
+                  <div class="phone-bar"><div class="phone-bar-fill" style="width:65%"></div></div>
                 </div>
-              </div>
-              <div class="booking-step">
-                <div class="step-num">04</div>
-                <div class="step-content">
-                  <div class="step-title">Device Returned</div>
-                  <div class="step-desc">
-                    Pick up in store or receive your repaired device via tracked
-                    shipping.
+                <div style="display:flex;gap:6px">
+                  <div class="phone-widget" style="flex:1">
+                    <div class="phone-widget-title">Camera</div>
+                    <div style="font-size:16px;margin-top:4px;text-align:center">200MP</div>
+                  </div>
+                  <div class="phone-widget" style="flex:1">
+                    <div class="phone-widget-title">5G Speed</div>
+                    <div style="font-size:16px;margin-top:4px;text-align:center;color:var(--green)">ON</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="booking-form-wrap">
-            <div class="form-title">Book a Repair</div>
-            <div class="form-subtitle">
-              Fill in the details below and we'll get back to you shortly.
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">First Name</label>
-                <input class="form-control" type="text" placeholder="John" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Last Name</label>
-                <input class="form-control" type="text" placeholder="Doe" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email Address</label>
-              <input
-                class="form-control"
-                type="email"
-                placeholder="john@example.com"
-              />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone Number</label>
-              <input
-                class="form-control"
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-              />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Device Brand & Model</label>
-              <select class="form-control">
-                <option value="">Select your device</option>
-                <option>Apple iPhone 16 Pro Max</option>
-                <option>Apple iPhone 16 Pro</option>
-                <option>Apple iPhone 16</option>
-                <option>Apple iPhone 15 series</option>
-                <option>Samsung Galaxy S25 Ultra</option>
-                <option>Samsung Galaxy S25+</option>
-                <option>Samsung Galaxy S25</option>
-                <option>Samsung Galaxy A55</option>
-                <option>Google Pixel 9 Pro</option>
-                <option>Google Pixel 8a</option>
-                <option>OnePlus 13</option>
-                <option>Xiaomi 15 Ultra</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Type of Repair</label>
-              <select class="form-control">
-                <option value="">Select repair type</option>
-                <option>Screen Replacement</option>
-                <option>Battery Replacement</option>
-                <option>Camera Repair</option>
-                <option>Charging Port Fix</option>
-                <option>Speaker / Microphone</option>
-                <option>Water Damage Recovery</option>
-                <option>Software Issue</option>
-                <option>Back Glass Replacement</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Preferred Date</label>
-              <input class="form-control" type="date" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Describe the Issue</label>
-              <textarea
-                class="form-control"
-                placeholder="Tell us more about the problem with your device..."
-              ></textarea>
-            </div>
-            <button
-              class="btn btn-primary form-submit"
-              style="justify-content: center"
-              onclick="submitBooking()"
-            >
-              📅 Book Repair Appointment
-            </button>
+          <div class="hero-floating-card hfc-1">
+            <div class="hfc-label">Today's Deal</div>
+            <div class="hfc-value">$200 OFF</div>
+            <div class="hfc-sub">Galaxy S25 Ultra</div>
+          </div>
+          <div class="hero-floating-card hfc-2">
+            <div class="hfc-stars">★★★★★</div>
+            <div class="hfc-sub" style="margin-top:4px">"Best phone store!"</div>
+            <div class="hfc-label" style="margin-top:4px">— 12k+ reviews</div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <!-- ============================ TESTIMONIALS ============================ -->
-    <section class="section" id="reviews">
-      <div class="container">
-        <div style="text-align: center; margin-bottom: 48px">
-          <div class="section-label" style="justify-content: center">
-            REVIEWS
+<!-- ============================
+     BRANDS
+============================ -->
+<div class="brands">
+  <div class="container">
+    <div class="brands-inner">
+      <div class="brand-item">APPLE</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">SAMSUNG</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">GOOGLE</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">ONEPLUS</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">XIAOMI</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">SONY</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">MOTOROLA</div>
+      <div style="color:var(--border);font-size:20px">|</div>
+      <div class="brand-item">NOKIA</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================
+     CATEGORIES
+============================ -->
+<div class="categories">
+  <div class="container">
+    <div class="cat-scroll">
+      <div class="cat-pill active" onclick="filterPhones('all', this)">
+        <span class="cat-icon">📱</span> All Phones <span class="cat-count">12</span>
+      </div>
+      <div class="cat-pill" onclick="filterPhones('apple', this)">
+        <span class="cat-icon">🍎</span> Apple <span class="cat-count">3</span>
+      </div>
+      <div class="cat-pill" onclick="filterPhones('samsung', this)">
+        <span class="cat-icon">🌟</span> Samsung <span class="cat-count">3</span>
+      </div>
+      <div class="cat-pill" onclick="filterPhones('google', this)">
+        <span class="cat-icon">🔍</span> Google <span class="cat-count">2</span>
+      </div>
+      <div class="cat-pill" onclick="filterPhones('oneplus', this)">
+        <span class="cat-icon">➕</span> OnePlus <span class="cat-count">2</span>
+      </div>
+      <div class="cat-pill" onclick="filterPhones('xiaomi', this)">
+        <span class="cat-icon">🔴</span> Xiaomi <span class="cat-count">2</span>
+      </div>
+      <div class="cat-pill" onclick="filterPhonesPrice('budget', this)">
+        <span class="cat-icon">💸</span> Under $500
+      </div>
+      <div class="cat-pill" onclick="filterPhonesPrice('flagship', this)">
+        <span class="cat-icon">👑</span> Flagship
+      </div>
+      <div class="cat-pill" onclick="filterPhones('5g', this)">
+        <span class="cat-icon">📡</span> 5G Ready
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================
+     DEALS BANNER
+============================ -->
+<section class="section" id="deals">
+  <div class="container">
+    <div class="deals-banner">
+      <div>
+        <span class="badge badge-amber" style="margin-bottom:12px">🔥 Flash Deal</span>
+        <div class="deals-title">LIMITED TIME OFFER</div>
+        <p class="deals-desc">Save up to 40% on selected flagship models. Offer ends when the timer runs out — don't miss it!</p>
+        <div style="margin-top:20px"><a href="#phones" class="btn btn-primary">Grab the Deal →</a></div>
+      </div>
+      <div>
+        <div class="countdown">
+          <div class="count-item">
+            <span class="count-num" id="cd-h">08</span>
+            <span class="count-label">Hours</span>
           </div>
-          <h2 class="section-title">
-            WHAT CUSTOMERS <span class="text-accent">SAY</span>
-          </h2>
-        </div>
-        <div class="testimonials-grid">
-          <div class="testimonial-card">
-            <div class="testimonial-rating">★★★★★</div>
-            <p class="testimonial-text">
-              "Ordered an iPhone 16 Pro Max and it arrived the very next day.
-              The packaging was impeccable and the phone was exactly as
-              described. Best online phone store I've used."
-            </p>
-            <div class="testimonial-author">
-              <div class="author-avatar">👨</div>
-              <div>
-                <div class="author-name">Marcus T.</div>
-                <div class="author-meta">iPhone 16 Pro Max buyer</div>
-                <div class="author-verified">✓ Verified Purchase</div>
-              </div>
-            </div>
+          <div style="display:flex;align-items:center;padding-top:8px;font-family:var(--font-display);font-size:32px;color:var(--accent3)">:</div>
+          <div class="count-item">
+            <span class="count-num" id="cd-m">34</span>
+            <span class="count-label">Minutes</span>
           </div>
-          <div class="testimonial-card">
-            <div class="testimonial-rating">★★★★★</div>
-            <p class="testimonial-text">
-              "Brought my Galaxy S24 in for a shattered screen. They fixed it in
-              2 hours and it looks brand new. Incredibly professional and
-              reasonably priced. Highly recommend!"
-            </p>
-            <div class="testimonial-author">
-              <div class="author-avatar">👩</div>
-              <div>
-                <div class="author-name">Priya K.</div>
-                <div class="author-meta">Screen repair customer</div>
-                <div class="author-verified">✓ Verified Customer</div>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card">
-            <div class="testimonial-rating">★★★★★</div>
-            <p class="testimonial-text">
-              "The comparison tool helped me decide between the Pixel 9 Pro and
-              Galaxy S25. Ended up with the Pixel and I'm loving it. The whole
-              experience from browsing to delivery was flawless."
-            </p>
-            <div class="testimonial-author">
-              <div class="author-avatar">🧑</div>
-              <div>
-                <div class="author-name">James L.</div>
-                <div class="author-meta">Pixel 9 Pro buyer</div>
-                <div class="author-verified">✓ Verified Purchase</div>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card">
-            <div class="testimonial-rating">★★★★☆</div>
-            <p class="testimonial-text">
-              "Great accessories selection. The Anker power bank I got has been
-              a lifesaver on trips. Shipping was quick and the price beat every
-              other site I checked."
-            </p>
-            <div class="testimonial-author">
-              <div class="author-avatar">👨‍💼</div>
-              <div>
-                <div class="author-name">Rafael M.</div>
-                <div class="author-meta">Accessories buyer</div>
-                <div class="author-verified">✓ Verified Purchase</div>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card">
-            <div class="testimonial-rating">★★★★★</div>
-            <p class="testimonial-text">
-              "Water damage recovery service saved my OnePlus 13 after I dropped
-              it in the pool. Thought it was gone forever. The team worked
-              miracles and recovered all my data!"
-            </p>
-            <div class="testimonial-author">
-              <div class="author-avatar">👩‍🦱</div>
-              <div>
-                <div class="author-name">Sofia H.</div>
-                <div class="author-meta">Water damage repair</div>
-                <div class="author-verified">✓ Verified Customer</div>
-              </div>
-            </div>
-          </div>
-          <div class="testimonial-card">
-            <div class="testimonial-rating">★★★★★</div>
-            <p class="testimonial-text">
-              "I was nervous about buying a flagship phone online but NEXUS made
-              the whole process so easy. The 30-day return policy and 2-year
-              warranty gave me peace of mind."
-            </p>
-            <div class="testimonial-author">
-              <div class="author-avatar">👴</div>
-              <div>
-                <div class="author-name">David C.</div>
-                <div class="author-meta">Xiaomi 15 Ultra buyer</div>
-                <div class="author-verified">✓ Verified Purchase</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 40px">
-          <div
-            style="
-              font-family: var(--font-display);
-              font-size: 48px;
-              color: var(--accent);
-              margin-bottom: 8px;
-            "
-          >
-            4.9 ★
-          </div>
-          <div style="color: var(--text-muted); font-size: 14px">
-            Based on 12,480 verified reviews
+          <div style="display:flex;align-items:center;padding-top:8px;font-family:var(--font-display);font-size:32px;color:var(--accent3)">:</div>
+          <div class="count-item">
+            <span class="count-num" id="cd-s">59</span>
+            <span class="count-label">Seconds</span>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <!-- ============================ NEWSLETTER ============================ -->
-    <section class="section" style="padding-top: 0">
-      <div class="container">
-        <div class="newsletter-section">
-          <h2 class="newsletter-title">STAY IN THE LOOP</h2>
-          <p class="newsletter-desc">
-            Get exclusive deals, new arrivals, and tech news delivered to your
-            inbox.
-          </p>
-          <div class="newsletter-form">
-            <input
-              type="email"
-              class="newsletter-input"
-              placeholder="Enter your email address"
-              id="newsletter-email"
-            />
-            <button class="btn btn-primary" onclick="subscribeNewsletter()">
-              Subscribe
-            </button>
+<!-- ============================
+     SMARTPHONES SECTION
+============================ -->
+<section class="section" id="phones">
+  <div class="container">
+    <div class="flex-between" style="margin-bottom:16px;flex-wrap:wrap;gap:16px">
+      <div>
+        <div class="section-label">CATALOG</div>
+        <h2 class="section-title">SMART<span class="text-accent">PHONES</span></h2>
+      </div>
+    </div>
+    <div class="flex-between" style="margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div class="phones-filter" id="phones-filter">
+        <button class="filter-btn active" onclick="filterPhones('all', null, this)">All</button>
+        <button class="filter-btn" onclick="filterPhones('apple', null, this)">Apple</button>
+        <button class="filter-btn" onclick="filterPhones('samsung', null, this)">Samsung</button>
+        <button class="filter-btn" onclick="filterPhones('google', null, this)">Google</button>
+        <button class="filter-btn" onclick="filterPhones('oneplus', null, this)">OnePlus</button>
+        <button class="filter-btn" onclick="filterPhones('xiaomi', null, this)">Xiaomi</button>
+      </div>
+      <select class="sort-select" onchange="sortPhones(this.value)">
+        <option value="default">Sort: Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="rating">Best Rated</option>
+        <option value="newest">Newest First</option>
+      </select>
+    </div>
+    <div class="grid-4" id="phones-grid">
+      <!-- Dynamically rendered by JS -->
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <button class="btn btn-outline" onclick="showToast('📱','Loading more phones...')">Load More Phones</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     COMPARE SECTION
+============================ -->
+<section class="section comparison-section" id="compare">
+  <div class="container">
+    <div class="section-label">SIDE BY SIDE</div>
+    <h2 class="section-title">COMPARE <span class="text-accent">MODELS</span></h2>
+    <p class="section-subtitle">Select up to three phones and compare their specifications in detail.</p>
+    <div style="height:40px"></div>
+    <div class="compare-controls">
+      <div class="compare-select-wrap">
+        <label>Phone 1</label>
+        <select class="compare-select" id="compare-1" onchange="renderComparison()">
+          <option value="0">iPhone 16 Pro Max</option>
+          <option value="1">Samsung Galaxy S25 Ultra</option>
+          <option value="2">Google Pixel 9 Pro</option>
+          <option value="3">OnePlus 13</option>
+          <option value="4">Xiaomi 15 Ultra</option>
+          <option value="5">iPhone 15</option>
+          <option value="6">Galaxy A55</option>
+          <option value="7">Pixel 8a</option>
+        </select>
+      </div>
+      <div class="compare-select-wrap">
+        <label>Phone 2</label>
+        <select class="compare-select" id="compare-2" onchange="renderComparison()">
+          <option value="0">iPhone 16 Pro Max</option>
+          <option value="1" selected>Samsung Galaxy S25 Ultra</option>
+          <option value="2">Google Pixel 9 Pro</option>
+          <option value="3">OnePlus 13</option>
+          <option value value="4">Xiaomi 15 Ultra</option>
+          <option value="5">iPhone 15</option>
+          <option value="6">Galaxy A55</option>
+          <option value="7">Pixel 8a</option>
+        </select>
+      </div>
+      <div class="compare-select-wrap">
+        <label>Phone 3 (Optional)</label>
+        <select class="compare-select" id="compare-3" onchange="renderComparison()">
+          <option value="-1">— None —</option>
+          <option value="0">iPhone 16 Pro Max</option>
+          <option value="1">Samsung Galaxy S25 Ultra</option>
+          <option value="2" selected>Google Pixel 9 Pro</option>
+          <option value="3">OnePlus 13</option>
+          <option value="4">Xiaomi 15 Ultra</option>
+          <option value="5">iPhone 15</option>
+          <option value="6">Galaxy A55</option>
+          <option value="7">Pixel 8a</option>
+        </select>
+      </div>
+    </div>
+    <div class="compare-table-wrap">
+      <table class="compare-table" id="compare-table"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     ACCESSORIES
+============================ -->
+<section class="section" id="accessories">
+  <div class="container">
+    <div class="flex-between" style="margin-bottom:40px;flex-wrap:wrap;gap:16px">
+      <div>
+        <div class="section-label">EXTRAS</div>
+        <h2 class="section-title">ACCES<span class="text-accent">SORIES</span></h2>
+        <p class="section-subtitle">Enhance your smartphone experience with premium accessories.</p>
+      </div>
+      <div class="tabs" style="align-self:flex-end;border-bottom:none;gap:8px">
+        <button class="filter-btn active" onclick="filterAcc('all',this)">All</button>
+        <button class="filter-btn" onclick="filterAcc('audio',this)">Audio</button>
+        <button class="filter-btn" onclick="filterAcc('power',this)">Power</button>
+        <button class="filter-btn" onclick="filterAcc('protection',this)">Protection</button>
+        <button class="filter-btn" onclick="filterAcc('wearable',this)">Wearables</button>
+      </div>
+    </div>
+    <div class="grid-4" id="acc-grid">
+      <!-- Dynamically rendered -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SERVICES
+============================ -->
+<section class="section" style="background:var(--bg2)" id="services">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px">
+      <div class="section-label" style="justify-content:center">EXPERT CARE</div>
+      <h2 class="section-title">OUR <span class="text-accent">SERVICES</span></h2>
+      <p class="section-subtitle" style="margin:12px auto 0">Professional smartphone services by certified technicians.</p>
+    </div>
+    <div class="services-grid" id="services-grid">
+      <!-- Dynamically rendered -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     REPAIR BOOKING
+============================ -->
+<section class="section booking-section" id="booking">
+  <div class="container">
+    <div class="booking-inner">
+      <div>
+        <div class="section-label">BOOK A REPAIR</div>
+        <div class="booking-info-title">FAST &<br><span class="text-accent">RELIABLE</span><br>REPAIRS</div>
+        <p class="section-subtitle" style="margin-bottom:36px">Our certified technicians fix your device quickly and professionally. Most repairs completed same day.</p>
+        <div class="booking-steps">
+          <div class="booking-step">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <div class="step-title">Submit Your Request</div>
+              <div class="step-desc">Fill out the form with your device details and the issue you're experiencing.</div>
+            </div>
           </div>
-          <p
-            style="font-size: 12px; color: var(--text-muted); margin-top: 16px"
-          >
-            No spam, ever. Unsubscribe anytime. 🔐 Your data is safe.
-          </p>
+          <div class="booking-step">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <div class="step-title">Get a Quote</div>
+              <div class="step-desc">We'll assess your device and send you a transparent quote within 30 minutes.</div>
+            </div>
+          </div>
+          <div class="booking-step">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <div class="step-title">Drop Off or Mail In</div>
+              <div class="step-desc">Visit our store or ship your device to us — we provide a prepaid label.</div>
+            </div>
+          </div>
+          <div class="booking-step">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <div class="step-title">Device Returned</div>
+              <div class="step-desc">Pick up in store or receive your repaired device via tracked shipping.</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
-
-    <!-- ============================ FOOTER ============================ -->
-    <footer>
-      <div class="container">
-        <div class="footer-grid">
-          <div class="footer-brand">
-            <div class="footer-logo">NEX<span>US</span></div>
-            <p class="footer-desc">
-              The ultimate smartphone destination. Premium phones, expert
-              repairs, and everything in between — all in one place.
-            </p>
-            <div class="footer-socials">
-              <a href="#" class="social-btn" title="Twitter">🐦</a>
-              <a href="#" class="social-btn" title="Instagram">📸</a>
-              <a href="#" class="social-btn" title="Facebook">👥</a>
-              <a href="#" class="social-btn" title="YouTube">▶️</a>
-              <a href="#" class="social-btn" title="TikTok">🎵</a>
-            </div>
+      <div class="booking-form-wrap">
+        <div class="form-title">Book a Repair</div>
+        <div class="form-subtitle">Fill in the details below and we'll get back to you shortly.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-control" type="text" placeholder="John">
           </div>
-          <div class="footer-col">
-            <h5>Shop</h5>
-            <div class="footer-links">
-              <a href="#phones" class="footer-link">All Smartphones</a>
-              <a href="#phones" class="footer-link">New Arrivals</a>
-              <a href="#phones" class="footer-link">Best Sellers</a>
-              <a href="#accessories" class="footer-link">Accessories</a>
-              <a href="#deals" class="footer-link">Flash Deals</a>
-              <a href="#" class="footer-link">Gift Cards</a>
-            </div>
-          </div>
-          <div class="footer-col">
-            <h5>Services</h5>
-            <div class="footer-links">
-              <a href="#services" class="footer-link">Screen Repair</a>
-              <a href="#services" class="footer-link">Battery Replacement</a>
-              <a href="#services" class="footer-link">Water Damage</a>
-              <a href="#services" class="footer-link">Software Support</a>
-              <a href="#booking" class="footer-link">Book a Repair</a>
-              <a href="#" class="footer-link">Business Plans</a>
-            </div>
-          </div>
-          <div class="footer-col">
-            <h5>Help</h5>
-            <div class="footer-links">
-              <a href="#" class="footer-link">Track Your Order</a>
-              <a href="#" class="footer-link">Returns & Refunds</a>
-              <a href="#" class="footer-link">Warranty Info</a>
-              <a href="#" class="footer-link">FAQ</a>
-              <a href="#" class="footer-link">Contact Us</a>
-              <a href="#" class="footer-link">Store Locations</a>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-control" type="text" placeholder="Doe">
           </div>
         </div>
-        <div class="footer-bottom">
-          <span>© 2025 NEXUS Tech Store. All rights reserved.</span>
-          <div class="footer-badges">
-            <span class="payment-badge">VISA</span>
-            <span class="payment-badge">MC</span>
-            <span class="payment-badge">AMEX</span>
-            <span class="payment-badge">PayPal</span>
-            <span class="payment-badge">Apple Pay</span>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-control" type="email" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input class="form-control" type="tel" placeholder="+1 (555) 000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Device Brand & Model</label>
+          <select class="form-control">
+            <option value="">Select your device</option>
+            <option>Apple iPhone 16 Pro Max</option>
+            <option>Apple iPhone 16 Pro</option>
+            <option>Apple iPhone 16</option>
+            <option>Apple iPhone 15 series</option>
+            <option>Samsung Galaxy S25 Ultra</option>
+            <option>Samsung Galaxy S25+</option>
+            <option>Samsung Galaxy S25</option>
+            <option>Samsung Galaxy A55</option>
+            <option>Google Pixel 9 Pro</option>
+            <option>Google Pixel 8a</option>
+            <option>OnePlus 13</option>
+            <option>Xiaomi 15 Ultra</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type of Repair</label>
+          <select class="form-control">
+            <option value="">Select repair type</option>
+            <option>Screen Replacement</option>
+            <option>Battery Replacement</option>
+            <option>Camera Repair</option>
+            <option>Charging Port Fix</option>
+            <option>Speaker / Microphone</option>
+            <option>Water Damage Recovery</option>
+            <option>Software Issue</option>
+            <option>Back Glass Replacement</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preferred Date</label>
+          <input class="form-control" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Describe the Issue</label>
+          <textarea class="form-control" placeholder="Tell us more about the problem with your device..."></textarea>
+        </div>
+        <button class="btn btn-primary form-submit" style="justify-content:center" onclick="submitBooking()">📅 Book Repair Appointment</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     TESTIMONIALS
+============================ -->
+<section class="section" id="reviews">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="section-label" style="justify-content:center">REVIEWS</div>
+      <h2 class="section-title">WHAT CUSTOMERS <span class="text-accent">SAY</span></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-rating">★★★★★</div>
+        <p class="testimonial-text">"Ordered an iPhone 16 Pro Max and it arrived the very next day. The packaging was impeccable and the phone was exactly as described. Best online phone store I've used."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨</div>
+          <div>
+            <div class="author-name">Marcus T.</div>
+            <div class="author-meta">iPhone 16 Pro Max buyer</div>
+            <div class="author-verified">✓ Verified Purchase</div>
           </div>
         </div>
       </div>
-    </footer>
+      <div class="testimonial-card">
+        <div class="testimonial-rating">★★★★★</div>
+        <p class="testimonial-text">"Brought my Galaxy S24 in for a shattered screen. They fixed it in 2 hours and it looks brand new. Incredibly professional and reasonably priced. Highly recommend!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩</div>
+          <div>
+            <div class="author-name">Priya K.</div>
+            <div class="author-meta">Screen repair customer</div>
+            <div class="author-verified">✓ Verified Customer</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-rating">★★★★★</div>
+        <p class="testimonial-text">"The comparison tool helped me decide between the Pixel 9 Pro and Galaxy S25. Ended up with the Pixel and I'm loving it. The whole experience from browsing to delivery was flawless."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🧑</div>
+          <div>
+            <div class="author-name">James L.</div>
+            <div class="author-meta">Pixel 9 Pro buyer</div>
+            <div class="author-verified">✓ Verified Purchase</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-rating">★★★★☆</div>
+        <p class="testimonial-text">"Great accessories selection. The Anker power bank I got has been a lifesaver on trips. Shipping was quick and the price beat every other site I checked."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨‍💼</div>
+          <div>
+            <div class="author-name">Rafael M.</div>
+            <div class="author-meta">Accessories buyer</div>
+            <div class="author-verified">✓ Verified Purchase</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-rating">★★★★★</div>
+        <p class="testimonial-text">"Water damage recovery service saved my OnePlus 13 after I dropped it in the pool. Thought it was gone forever. The team worked miracles and recovered all my data!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩‍🦱</div>
+          <div>
+            <div class="author-name">Sofia H.</div>
+            <div class="author-meta">Water damage repair</div>
+            <div class="author-verified">✓ Verified Customer</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-rating">★★★★★</div>
+        <p class="testimonial-text">"I was nervous about buying a flagship phone online but NEXUS made the whole process so easy. The 30-day return policy and 2-year warranty gave me peace of mind."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👴</div>
+          <div>
+            <div class="author-name">David C.</div>
+            <div class="author-meta">Xiaomi 15 Ultra buyer</div>
+            <div class="author-verified">✓ Verified Purchase</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <div style="font-family:var(--font-display);font-size:48px;color:var(--accent);margin-bottom:8px">4.9 ★</div>
+      <div style="color:var(--text-muted);font-size:14px">Based on 12,480 verified reviews</div>
+    </div>
+  </div>
+</section>
 
-    <!-- Back to Top -->
-    <button
-      class="back-to-top"
-      id="back-top"
-      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-    >
-      ↑
-    </button>
-    <script src="script.js" defer></script>
-  </body>
+<!-- ============================
+     NEWSLETTER
+============================ -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="newsletter-section">
+      <h2 class="newsletter-title">STAY IN THE LOOP</h2>
+      <p class="newsletter-desc">Get exclusive deals, new arrivals, and tech news delivered to your inbox.</p>
+      <div class="newsletter-form">
+        <input type="email" class="newsletter-input" placeholder="Enter your email address" id="newsletter-email">
+        <button class="btn btn-primary" onclick="subscribeNewsletter()">Subscribe</button>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:16px">No spam, ever. Unsubscribe anytime. 🔐 Your data is safe.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     FOOTER
+============================ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">NEX<span>US</span></div>
+        <p class="footer-desc">The ultimate smartphone destination. Premium phones, expert repairs, and everything in between — all in one place.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-btn" title="Twitter">🐦</a>
+          <a href="#" class="social-btn" title="Instagram">📸</a>
+          <a href="#" class="social-btn" title="Facebook">👥</a>
+          <a href="#" class="social-btn" title="YouTube">▶️</a>
+          <a href="#" class="social-btn" title="TikTok">🎵</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <div class="footer-links">
+          <a href="#phones" class="footer-link">All Smartphones</a>
+          <a href="#phones" class="footer-link">New Arrivals</a>
+          <a href="#phones" class="footer-link">Best Sellers</a>
+          <a href="#accessories" class="footer-link">Accessories</a>
+          <a href="#deals" class="footer-link">Flash Deals</a>
+          <a href="#" class="footer-link">Gift Cards</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <div class="footer-links">
+          <a href="#services" class="footer-link">Screen Repair</a>
+          <a href="#services" class="footer-link">Battery Replacement</a>
+          <a href="#services" class="footer-link">Water Damage</a>
+          <a href="#services" class="footer-link">Software Support</a>
+          <a href="#booking" class="footer-link">Book a Repair</a>
+          <a href="#" class="footer-link">Business Plans</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Help</h5>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Track Your Order</a>
+          <a href="#" class="footer-link">Returns & Refunds</a>
+          <a href="#" class="footer-link">Warranty Info</a>
+          <a href="#" class="footer-link">FAQ</a>
+          <a href="#" class="footer-link">Contact Us</a>
+          <a href="#" class="footer-link">Store Locations</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 NEXUS Tech Store. All rights reserved.</span>
+      <div class="footer-badges">
+        <span class="payment-badge">VISA</span>
+        <span class="payment-badge">MC</span>
+        <span class="payment-badge">AMEX</span>
+        <span class="payment-badge">PayPal</span>
+        <span class="payment-badge">Apple Pay</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ============================
+     JAVASCRIPT
+============================ -->
+<script>
+// ============================
+// DATA
+// ============================
+const phones = [
+  {
+    id: 0, brand: 'Apple', name: 'iPhone 16 Pro Max', emoji: '📱',
+    price: 1199, oldPrice: 1399, rating: 4.9, reviews: 4820,
+    badges: ['New', 'Best Seller'], category: 'apple', is5g: true, isNew: true,
+    colors: ['#c0b090','#1c1c1e','#4a4a4a','#ffffff'],
+    storage: ['256GB','512GB','1TB'],
+    specs: { Display:'6.9" ProMotion', Chip:'A18 Pro', Camera:'48MP + 48MP + 12MP', Battery:'4685 mAh', RAM:'8GB', Storage:'256GB', OS:'iOS 18', '5G':'Yes' },
+    features: ['Titanium design', 'Action button', 'ProRes Video', 'Face ID'],
+    desc: 'The ultimate iPhone with titanium build, A18 Pro chip, and the most advanced camera system ever in an iPhone.'
+  },
+  {
+    id: 1, brand: 'Samsung', name: 'Galaxy S25 Ultra', emoji: '📲',
+    price: 1299, oldPrice: 1499, rating: 4.8, reviews: 3910,
+    badges: ['Sale', 'Top Pick'], category: 'samsung', is5g: true, isNew: true,
+    colors: ['#1a1a2e','#f0e6d3','#2d5016','#4a0404'],
+    storage: ['256GB','512GB','1TB'],
+    specs: { Display:'6.9" Dynamic AMOLED', Chip:'Snapdragon 8 Elite', Camera:'200MP + 50MP + 10MP', Battery:'5000 mAh', RAM:'12GB', Storage:'256GB', OS:'Android 15', '5G':'Yes' },
+    features: ['Built-in S Pen', '200MP camera', '45W fast charge', 'Titanium frame'],
+    desc: 'Samsung\'s most powerful phone with the iconic S Pen and industry-leading 200MP camera system.'
+  },
+  {
+    id: 2, brand: 'Google', name: 'Pixel 9 Pro', emoji: '🟢',
+    price: 999, oldPrice: 1099, rating: 4.7, reviews: 2240,
+    badges: ['Hot'], category: 'google', is5g: true, isNew: true,
+    colors: ['#f0e6d3','#1c1c1e','#2271c3','#d4e9c5'],
+    storage: ['128GB','256GB','512GB'],
+    specs: { Display:'6.3" LTPO OLED', Chip:'Google Tensor G4', Camera:'50MP + 48MP + 48MP', Battery:'4700 mAh', RAM:'16GB', Storage:'128GB', OS:'Android 15', '5G':'Yes' },
+    features: ['AI photography', 'Magic Eraser', '7 years updates', 'Gemini AI'],
+    desc: 'Google\'s smartest phone with Tensor G4 chip, exceptional AI features and the best camera experience on Android.'
+  },
+  {
+    id: 3, brand: 'OnePlus', name: 'OnePlus 13', emoji: '🔴',
+    price: 899, oldPrice: 999, rating: 4.6, reviews: 1820,
+    badges: ['Value Pick'], category: 'oneplus', is5g: true, isNew: false,
+    colors: ['#1c1c1e','#2d5a27','#7c3a4a'],
+    storage: ['256GB','512GB'],
+    specs: { Display:'6.82" LTPO4 AMOLED', Chip:'Snapdragon 8 Elite', Camera:'50MP + 50MP + 50MP', Battery:'6000 mAh', RAM:'16GB', Storage:'256GB', OS:'OxygenOS 15', '5G':'Yes' },
+    features: ['100W charging', '6000mAh battery', 'Hasselblad cameras', 'Alert slider'],
+    desc: 'Flagship performance at a competitive price. The OnePlus 13 packs serious power with Hasselblad cameras.'
+  },
+  {
+    id: 4, brand: 'Xiaomi', name: 'Xiaomi 15 Ultra', emoji: '🔵',
+    price: 1099, oldPrice: 1199, rating: 4.7, reviews: 1540,
+    badges: ['Import'], category: 'xiaomi', is5g: true, isNew: true,
+    colors: ['#1c1c1e','#f5f5f0','#2d3561'],
+    storage: ['256GB','512GB','1TB'],
+    specs: { Display:'6.73" 2K AMOLED', Chip:'Snapdragon 8 Elite', Camera:'50MP + 200MP + 50MP', Battery:'6000 mAh', RAM:'16GB', Storage:'256GB', OS:'HyperOS 2', '5G':'Yes' },
+    features: ['Leica cameras', '90W wireless charge', 'IP68 rated', 'Ceramic back'],
+    desc: 'Xiaomi\'s masterpiece with Leica optics, 90W wireless charging, and flagship Snapdragon 8 Elite performance.'
+  },
+  {
+    id: 5, brand: 'Apple', name: 'iPhone 15', emoji: '📱',
+    price: 699, oldPrice: 799, rating: 4.6, reviews: 6120,
+    badges: ['Sale'], category: 'apple', is5g: true, isNew: false,
+    colors: ['#f5cba7','#5d6d7e','#2ecc71','#f8f9fa','#1c1c1e'],
+    storage: ['128GB','256GB','512GB'],
+    specs: { Display:'6.1" Super Retina XDR', Chip:'A16 Bionic', Camera:'48MP + 12MP', Battery:'3877 mAh', RAM:'6GB', Storage:'128GB', OS:'iOS 18', '5G':'Yes' },
+    features: ['Dynamic Island', 'USB-C', '48MP main camera', 'Ceramic Shield'],
+    desc: 'The perfect everyday iPhone. Dynamic Island, USB-C, and 48MP camera in a compact, gorgeous package.'
+  },
+  {
+    id: 6, brand: 'Samsung', name: 'Galaxy A55', emoji: '📳',
+    price: 449, oldPrice: 499, rating: 4.4, reviews: 3380,
+    badges: ['Budget Friendly'], category: 'samsung', is5g: true, isNew: false,
+    colors: ['#1c1c1e','#6c5ce7','#e17055','#dfe6e9'],
+    storage: ['128GB','256GB'],
+    specs: { Display:'6.6" Super AMOLED', Chip:'Exynos 1480', Camera:'50MP + 12MP + 5MP', Battery:'5000 mAh', RAM:'8GB', Storage:'128GB', OS:'Android 14', '5G':'Yes' },
+    features: ['OIS camera', 'IP67 water resistance', 'Samsung DeX', '25W charging'],
+    desc: 'Incredible mid-range value with flagship-like features. The Galaxy A55 punches way above its price.'
+  },
+  {
+    id: 7, brand: 'Google', name: 'Pixel 8a', emoji: '🟩',
+    price: 499, oldPrice: 549, rating: 4.5, reviews: 2890,
+    badges: ['Best Value'], category: 'google', is5g: true, isNew: false,
+    colors: ['#4a90e2','#1c1c1e','#e8f5e9','#ff7675'],
+    storage: ['128GB','256GB'],
+    specs: { Display:'6.1" OLED', Chip:'Google Tensor G3', Camera:'64MP + 13MP', Battery:'4492 mAh', RAM:'8GB', Storage:'128GB', OS:'Android 14', '5G':'Yes' },
+    features: ['AI features', '7 years updates', 'Pixel Camera', 'Wireless charging'],
+    desc: 'All the magic of Pixel AI in a more affordable package. The Pixel 8a makes AI photography accessible to everyone.'
+  },
+  {
+    id: 8, brand: 'OnePlus', name: 'OnePlus 12R', emoji: '🔴',
+    price: 499, oldPrice: 599, rating: 4.5, reviews: 1230,
+    badges: ['Budget Flagship'], category: 'oneplus', is5g: true, isNew: false,
+    colors: ['#1c1c1e','#2980b9'],
+    storage: ['128GB','256GB'],
+    specs: { Display:'6.78" LTPO3 AMOLED', Chip:'Snapdragon 8 Gen 2', Camera:'50MP + 8MP + 2MP', Battery:'5500 mAh', RAM:'8GB', Storage:'128GB', OS:'OxygenOS 14', '5G':'Yes' },
+    features: ['100W charging', 'Gaming mode', 'Alert slider', 'Smooth display'],
+    desc: 'Flagship-grade chipset and 100W charging at a mid-range price. The OnePlus 12R is an incredible deal.'
+  },
+  {
+    id: 9, brand: 'Xiaomi', name: 'Redmi Note 13 Pro', emoji: '🔵',
+    price: 299, oldPrice: 349, rating: 4.3, reviews: 4120,
+    badges: ['Budget Pick'], category: 'xiaomi', is5g: true, isNew: false,
+    colors: ['#1c1c1e','#6c5ce7','#2ecc71'],
+    storage: ['128GB','256GB'],
+    specs: { Display:'6.67" AMOLED', Chip:'Snapdragon 7s Gen 2', Camera:'200MP + 8MP + 2MP', Battery:'5000 mAh', RAM:'8GB', Storage:'128GB', OS:'MIUI 14', '5G':'Yes' },
+    features: ['200MP camera', 'IP54 rated', '67W fast charge', 'Curved display'],
+    desc: '200MP camera in a budget phone? Redmi Note 13 Pro delivers incredible camera specs without breaking the bank.'
+  },
+  {
+    id: 10, brand: 'Apple', name: 'iPhone 16 Pro', emoji: '📱',
+    price: 999, oldPrice: 1099, rating: 4.9, reviews: 3210,
+    badges: ['New'], category: 'apple', is5g: true, isNew: true,
+    colors: ['#c0b090','#1c1c1e','#4a4a4a','#ffffff'],
+    storage: ['128GB','256GB','512GB','1TB'],
+    specs: { Display:'6.3" ProMotion', Chip:'A18 Pro', Camera:'48MP + 48MP + 12MP', Battery:'3582 mAh', RAM:'8GB', Storage:'128GB', OS:'iOS 18', '5G':'Yes' },
+    features: ['Action button', 'ProRes video', 'Face ID', 'MagSafe'],
+    desc: 'Pro camera system, A18 Pro chip, and Action button in a refined compact design. The perfect professional iPhone.'
+  },
+  {
+    id: 11, brand: 'Samsung', name: 'Galaxy Z Fold 6', emoji: '📰',
+    price: 1799, oldPrice: 1999, rating: 4.6, reviews: 980,
+    badges: ['Foldable', 'Premium'], category: 'samsung', is5g: true, isNew: true,
+    colors: ['#1c1c1e','#f0e6d3','#2d5016'],
+    storage: ['256GB','512GB'],
+    specs: { Display:'7.6" Foldable AMOLED', Chip:'Snapdragon 8 Gen 3', Camera:'50MP + 12MP + 10MP', Battery:'4400 mAh', RAM:'12GB', Storage:'256GB', OS:'Android 14', '5G':'Yes' },
+    features: ['Foldable design', 'Taskbar multitask', 'S Pen support', 'IPX8 rated'],
+    desc: 'The future of smartphones, today. Galaxy Z Fold 6 transforms from phone to tablet, redefining what\'s possible.'
+  },
+];
+
+// Comparison data
+const comparePhones = [
+  { name:'iPhone 16 Pro Max', brand:'Apple', icon:'📱', display:'6.9" ProMotion OLED', chip:'A18 Pro', ram:'8GB', storage:'256GB / 512GB / 1TB', camera:'48+48+12MP', battery:'4685 mAh', charging:'27W wired', os:'iOS 18', price:'$1,199', weight:'227g', ipRating:'IP68', fiveG:'Yes' },
+  { name:'Galaxy S25 Ultra', brand:'Samsung', icon:'📲', display:'6.9" Dynamic AMOLED', chip:'Snapdragon 8 Elite', ram:'12GB', storage:'256GB / 512GB / 1TB', camera:'200+50+10MP', battery:'5000 mAh', charging:'45W wired', os:'Android 15', price:'$1,299', weight:'218g', ipRating:'IP68', fiveG:'Yes' },
+  { name:'Pixel 9 Pro', brand:'Google', icon:'🟢', display:'6.3" LTPO OLED', chip:'Tensor G4', ram:'16GB', storage:'128GB / 256GB / 512GB', camera:'50+48+48MP', battery:'4700 mAh', charging:'37W wired', os:'Android 15', price:'$999', weight:'221g', ipRating:'IP68', fiveG:'Yes' },
+  { name:'OnePlus 13', brand:'OnePlus', icon:'🔴', display:'6.82" LTPO4 AMOLED', chip:'Snapdragon 8 Elite', ram:'16GB', storage:'256GB / 512GB', camera:'50+50+50MP', battery:'6000 mAh', charging:'100W wired', os:'OxygenOS 15', price:'$899', weight:'210g', ipRating:'IP69', fiveG:'Yes' },
+  { name:'Xiaomi 15 Ultra', brand:'Xiaomi', icon:'🔵', display:'6.73" 2K AMOLED', chip:'Snapdragon 8 Elite', ram:'16GB', storage:'256GB / 512GB / 1TB', camera:'50+200+50MP', battery:'6000 mAh', charging:'90W wired', os:'HyperOS 2', price:'$1,099', weight:'226g', ipRating:'IP68', fiveG:'Yes' },
+  { name:'iPhone 15', brand:'Apple', icon:'📱', display:'6.1" Super Retina XDR', chip:'A16 Bionic', ram:'6GB', storage:'128GB / 256GB / 512GB', camera:'48+12MP', battery:'3877 mAh', charging:'27W wired', os:'iOS 18', price:'$699', weight:'171g', ipRating:'IP68', fiveG:'Yes' },
+  { name:'Galaxy A55', brand:'Samsung', icon:'📳', display:'6.6" Super AMOLED', chip:'Exynos 1480', ram:'8GB', storage:'128GB / 256GB', camera:'50+12+5MP', battery:'5000 mAh', charging:'25W wired', os:'Android 14', price:'$449', weight:'213g', ipRating:'IP67', fiveG:'Yes' },
+  { name:'Pixel 8a', brand:'Google', icon:'🟩', display:'6.1" OLED', chip:'Tensor G3', ram:'8GB', storage:'128GB / 256GB', camera:'64+13MP', battery:'4492 mAh', charging:'18W wired', os:'Android 14', price:'$499', weight:'188g', ipRating:'IP67', fiveG:'Yes' },
+];
+
+const compareRows = [
+  { label: 'Display', key: 'display' },
+  { label: 'Chipset', key: 'chip' },
+  { label: 'RAM', key: 'ram' },
+  { label: 'Storage Options', key: 'storage' },
+  { label: 'Camera', key: 'camera' },
+  { label: 'Battery', key: 'battery' },
+  { label: 'Charging', key: 'charging' },
+  { label: 'Operating System', key: 'os' },
+  { label: 'Price', key: 'price' },
+  { label: 'Weight', key: 'weight' },
+  { label: 'IP Rating', key: 'ipRating' },
+  { label: '5G', key: 'fiveG' },
+];
+
+const accessories = [
+  { id: 0, name: 'AirPods Pro 3', brand: 'Apple', cat: 'audio', emoji: '🎧', price: 249, oldPrice: 279, desc: 'Active noise cancellation, Transparency mode, and spatial audio.', badge: 'New', badgeType: 'badge-accent' },
+  { id: 1, name: 'Galaxy Buds 3 Pro', brand: 'Samsung', cat: 'audio', emoji: '🎵', price: 199, oldPrice: 229, desc: 'Hi-Fi sound with adaptive ANC and 360° audio.', badge: 'Hot', badgeType: 'badge-amber' },
+  { id: 2, name: 'Anker 200W Power Bank', brand: 'Anker', cat: 'power', emoji: '🔋', price: 89, oldPrice: 119, desc: '26,800mAh with 200W output. Charges up to 6 devices at once.', badge: 'Best Seller', badgeType: 'badge-green' },
+  { id: 3, name: 'Spigen MagSafe Case', brand: 'Spigen', cat: 'protection', emoji: '🛡️', price: 49, desc: 'Military-grade drop protection with MagSafe compatibility.', badge: 'Sale', badgeType: 'badge-red' },
+  { id: 4, name: 'Apple Watch Ultra 2', brand: 'Apple', cat: 'wearable', emoji: '⌚', price: 799, oldPrice: 899, desc: 'Titanium case, 60-hour battery, and extreme sport features.', badge: 'Premium', badgeType: 'badge-purple' },
+  { id: 5, name: 'Samsung 65W Charger', brand: 'Samsung', cat: 'power', emoji: '🔌', price: 39, oldPrice: 49, desc: 'Super fast 65W USB-C charger with 1.8m braided cable.', badge: null },
+  { id: 6, name: 'ZAGG Screen Protector', brand: 'ZAGG', cat: 'protection', emoji: '📱', price: 29, desc: 'Nano-Shield glass with self-healing properties.', badge: 'Popular', badgeType: 'badge-accent' },
+  { id: 7, name: 'Google Pixel Watch 3', brand: 'Google', cat: 'wearable', emoji: '⌚', price: 349, oldPrice: 399, desc: 'Advanced health metrics with Google Maps and Fitbit integration.', badge: 'New', badgeType: 'badge-accent' },
+  { id: 8, name: 'Sony WH-1000XM5', brand: 'Sony', cat: 'audio', emoji: '🎧', price: 349, oldPrice: 399, desc: 'Industry-leading noise cancellation with 30-hour battery life.', badge: 'Top Rated', badgeType: 'badge-green' },
+  { id: 9, name: 'MagSafe Duo Charger', brand: 'Apple', cat: 'power', emoji: '💡', price: 129, oldPrice: 149, desc: 'Charge iPhone and Apple Watch simultaneously. Travel-friendly.', badge: null },
+  { id: 10, name: 'dbrand Teardown Skin', brand: 'dbrand', cat: 'protection', emoji: '🎨', price: 35, desc: 'Ultra-precise vinyl skin for scratch protection and unique style.', badge: 'Trending', badgeType: 'badge-purple' },
+  { id: 11, name: 'Samsung Galaxy Ring', brand: 'Samsung', cat: 'wearable', emoji: '💍', price: 399, oldPrice: 449, desc: 'Track health 24/7 with a discreet titanium smart ring.', badge: 'New', badgeType: 'badge-accent' },
+];
+
+const services = [
+  { icon: '📺', iconClass: '', name: 'Screen Replacement', desc: 'Cracked or shattered screen? We replace it with original OEM parts, restoring your phone to factory condition.', features: ['OEM quality parts', '90-day warranty', 'Same-day service', 'Free diagnostics'], priceFrom: 'From', price: '$49' },
+  { icon: '🔋', iconClass: 'purple', name: 'Battery Replacement', desc: 'Restore your phone\'s battery life to 100%. We use certified batteries to ensure safety and performance.', features: ['Certified batteries', 'Health check included', '1-year warranty', 'Express service'], priceFrom: 'From', price: '$39' },
+  { icon: '📷', iconClass: 'amber', name: 'Camera Repair', desc: 'Blurry photos or broken cameras? Our specialists diagnose and fix all camera issues — front and rear.', features: ['Front & rear cameras', 'OIS calibration', 'Software check', '60-day warranty'], priceFrom: 'From', price: '$59' },
+  { icon: '💧', iconClass: 'green', name: 'Water Damage Recovery', desc: 'Dropped your phone in water? Don\'t panic. Our technicians can often recover water-damaged devices and your data.', features: ['Ultrasonic cleaning', 'Data recovery attempt', 'Corrosion treatment', 'No fix, no fee'], priceFrom: 'From', price: '$79' },
+  { icon: '⚡', iconClass: 'red', name: 'Charging Port Fix', desc: 'Phone not charging? Loose connector or blocked port — we fix all charging port issues quickly and reliably.', features: ['Port cleaning or swap', '24-hour turnaround', 'USB-C & Lightning', '90-day warranty'], priceFrom: 'From', price: '$29' },
+  { icon: '💾', iconClass: '', name: 'Software & Unlocking', desc: 'Device software issues, factory resets, OS updates, and network unlocking services by certified experts.', features: ['OS reinstall / update', 'Network unlock', 'Virus removal', 'Data backup'], priceFrom: 'From', price: '$19' },
+];
+
+// ============================
+// STATE
+// ============================
+let cart = [];
+let wishlist = [];
+let currentPhone = null;
+let modalQty = 1;
+let currentFilter = 'all';
+let currentSort = 'default';
+let countdownSeconds = 8 * 3600 + 34 * 60 + 59;
+
+// ============================
+// RENDER PHONES
+// ============================
+function renderPhones(data) {
+  const grid = document.getElementById('phones-grid');
+  if (!data.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)"><div style="font-size:48px;margin-bottom:16px">🔍</div><p>No phones found. Try a different filter.</p></div>';
+    return;
+  }
+  // First item as featured
+  let html = '';
+  data.forEach((p, i) => {
+    const save = p.oldPrice ? Math.round((1 - p.price/p.oldPrice)*100) : 0;
+    const stars = '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5-Math.round(p.rating));
+    html += `
+      <div class="phone-card" data-id="${p.id}">
+        <div class="phone-card-badges">
+          ${p.badges.map(b => `<span class="badge ${b==='New'?'badge-accent':b==='Sale'?'badge-red':b==='Hot'?'badge-amber':'badge-green'}">${b}</span>`).join('')}
+        </div>
+        <div class="phone-card-wish ${wishlist.find(w=>w.id===p.id)?'active':''}" onclick="toggleWish(${p.id}, event)" title="Add to wishlist">♡</div>
+        <div class="phone-card-img">
+          <div class="phone-img-placeholder" style="animation-delay:${i*0.2}s">${p.emoji}</div>
+        </div>
+        <div class="phone-card-body">
+          <div class="phone-card-brand">${p.brand}</div>
+          <div class="phone-card-name">${p.name}</div>
+          <div class="phone-card-rating">
+            <span class="stars">${stars}</span>
+            <span class="rating-num">${p.rating} (${p.reviews.toLocaleString()})</span>
+          </div>
+          <div class="phone-card-specs">
+            <div class="spec-item">
+              <div class="spec-key">Display</div>
+              <div class="spec-val">${p.specs.Display}</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-key">Camera</div>
+              <div class="spec-val">${p.specs.Camera.split(' ')[0]}</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-key">Chip</div>
+              <div class="spec-val">${p.specs.Chip.split(' ').slice(0,2).join(' ')}</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-key">Battery</div>
+              <div class="spec-val">${p.specs.Battery}</div>
+            </div>
+          </div>
+          <div class="phone-card-footer">
+            <div class="phone-price">
+              <div class="price-current">$${p.price}</div>
+              ${p.oldPrice ? `<div><span class="price-old">$${p.oldPrice}</span> <span class="price-save">Save ${save}%</span></div>` : ''}
+            </div>
+            <div class="phone-card-actions">
+              <button class="btn btn-outline btn-sm" onclick="openModal(${p.id})">Quick View</button>
+              <button class="btn btn-primary btn-sm" onclick="addToCart(${p.id}, event)">+ Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+// ============================
+// FILTER & SORT
+// ============================
+function filterPhones(cat, catEl, btnEl) {
+  // Update active cat pill
+  if (catEl) {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    catEl.classList.add('active');
+  }
+  // Update active filter btn
+  if (btnEl) {
+    document.querySelectorAll('#phones-filter .filter-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+  currentFilter = cat;
+  applyFilters();
+}
+function filterPhonesPrice(type, catEl) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  catEl.classList.add('active');
+  let data = [...phones];
+  if (type === 'budget') data = data.filter(p => p.price < 500);
+  if (type === 'flagship') data = data.filter(p => p.price >= 1000);
+  renderPhones(data);
+}
+function applyFilters() {
+  let data = [...phones];
+  if (currentFilter !== 'all' && currentFilter !== '5g') {
+    data = data.filter(p => p.category === currentFilter);
+  }
+  if (currentFilter === '5g') data = data.filter(p => p.is5g);
+  sortData(data);
+}
+function sortPhones(val) {
+  currentSort = val;
+  applyFilters();
+}
+function sortData(data) {
+  if (currentSort === 'price-asc') data.sort((a,b) => a.price - b.price);
+  if (currentSort === 'price-desc') data.sort((a,b) => b.price - a.price);
+  if (currentSort === 'rating') data.sort((a,b) => b.rating - a.rating);
+  if (currentSort === 'newest') data.sort((a,b) => (b.isNew?1:0) - (a.isNew?1:0));
+  renderPhones(data);
+}
+
+// ============================
+// SEARCH
+// ============================
+function handleSearch(val) {
+  if (!val.trim()) { applyFilters(); return; }
+  const q = val.toLowerCase();
+  const data = phones.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    p.brand.toLowerCase().includes(q) ||
+    p.specs.Chip.toLowerCase().includes(q) ||
+    p.specs.Camera.toLowerCase().includes(q) ||
+    p.desc.toLowerCase().includes(q)
+  );
+  renderPhones(data);
+}
+
+// ============================
+// MODAL
+// ============================
+function openModal(id) {
+  currentPhone = phones.find(p => p.id === id);
+  if (!currentPhone) return;
+  modalQty = 1;
+  document.getElementById('modal-qty').textContent = 1;
+  document.getElementById('modal-title').textContent = currentPhone.name;
+  document.getElementById('modal-brand').textContent = currentPhone.brand;
+  document.getElementById('modal-name').textContent = currentPhone.name;
+  document.getElementById('modal-img').textContent = currentPhone.emoji;
+  document.getElementById('modal-img').style.fontSize = '120px';
+  document.getElementById('modal-price').textContent = '$' + currentPhone.price;
+  const oldEl = document.getElementById('modal-price-old');
+  oldEl.textContent = currentPhone.oldPrice ? '$' + currentPhone.oldPrice : '';
+  // Specs
+  const specsHtml = Object.entries(currentPhone.specs).map(([k,v]) => `
+    <div class="modal-spec">
+      <div class="modal-spec-key">${k}</div>
+      <div class="modal-spec-val">${v}</div>
+    </div>`).join('');
+  document.getElementById('modal-specs').innerHTML = specsHtml;
+  // Colors
+  const colorsHtml = currentPhone.colors.map((c,i) => `
+    <div class="color-option ${i===0?'selected':''}" style="background:${c}" onclick="selectColor(this)" title="${c}"></div>`).join('');
+  document.getElementById('modal-colors').innerHTML = colorsHtml;
+  // Storage
+  const storageHtml = currentPhone.storage.map((s,i) => `
+    <button class="btn btn-outline btn-sm ${i===0?'':'opacity'}" onclick="selectStorage(this)" style="${i===0?'border-color:var(--accent);color:var(--accent)':''}">${s}</button>`).join('');
+  document.getElementById('modal-storage').innerHTML = storageHtml;
+  // Wishlist btn
+  const isWished = wishlist.find(w => w.id === currentPhone.id);
+  document.getElementById('modal-wish-btn').textContent = isWished ? '❤️' : '♡';
+  document.getElementById('modal-overlay').classList.add('active');
+  document.getElementById('overlay-bg').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  if (!document.getElementById('cart-sidebar').classList.contains('open') &&
+      !document.getElementById('wishlist-sidebar').classList.contains('open')) {
+    document.getElementById('overlay-bg').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+function changeQty(delta) {
+  modalQty = Math.max(1, Math.min(10, modalQty + delta));
+  document.getElementById('modal-qty').textContent = modalQty;
+}
+function selectColor(el) {
+  document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectStorage(el) {
+  document.querySelectorAll('#modal-storage .btn').forEach(b => { b.style.borderColor=''; b.style.color=''; });
+  el.style.borderColor = 'var(--accent)'; el.style.color = 'var(--accent)';
+}
+function addToCartFromModal() {
+  if (!currentPhone) return;
+  addToCart(currentPhone.id);
+  closeModal();
+}
+function addToWishlistFromModal() {
+  if (!currentPhone) return;
+  toggleWish(currentPhone.id);
+  const isWished = wishlist.find(w => w.id === currentPhone.id);
+  document.getElementById('modal-wish-btn').textContent = isWished ? '❤️' : '♡';
+}
+
+// ============================
+// CART
+// ============================
+function addToCart(id, e) {
+  if (e) e.stopPropagation();
+  const phone = phones.find(p => p.id === id);
+  if (!phone) return;
+  const existing = cart.find(c => c.id === id);
+  if (existing) { existing.qty = (existing.qty || 1) + 1; }
+  else { cart.push({ ...phone, qty: 1 }); }
+  updateCartUI();
+  showToast('✅', `${phone.name} added to cart!`);
+}
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  updateCartUI();
+}
+function updateCartUI() {
+  const count = cart.reduce((s, c) => s + (c.qty||1), 0);
+  document.getElementById('cart-count').textContent = count;
+  const itemsEl = document.getElementById('cart-items');
+  const footerEl = document.getElementById('cart-footer');
+  if (!cart.length) {
+    itemsEl.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛍️</div><p class="cart-empty-text">Your cart is empty.<br>Start shopping!</p></div>';
+    footerEl.style.display = 'none';
+    return;
+  }
+  footerEl.style.display = '';
+  itemsEl.innerHTML = cart.map(p => `
+    <div class="cart-item">
+      <div class="cart-item-img">${p.emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-variant">${p.brand} · Qty: ${p.qty||1}</div>
+        <div class="cart-item-price">$${p.price * (p.qty||1)}</div>
+      </div>
+      <span class="cart-item-remove" onclick="removeFromCart(${p.id})" title="Remove">✕</span>
+    </div>`).join('');
+  const subtotal = cart.reduce((s, c) => s + c.price * (c.qty||1), 0);
+  document.getElementById('cart-subtotal').textContent = '$' + subtotal;
+  document.getElementById('cart-total').textContent = '$' + subtotal;
+}
+function toggleCart() {
+  const sidebar = document.getElementById('cart-sidebar');
+  const bg = document.getElementById('overlay-bg');
+  const wishSide = document.getElementById('wishlist-sidebar');
+  wishSide.classList.remove('open');
+  sidebar.classList.toggle('open');
+  if (sidebar.classList.contains('open')) {
+    bg.classList.add('active'); document.body.style.overflow = 'hidden';
+  } else { bg.classList.remove('active'); document.body.style.overflow = ''; }
+}
+
+// ============================
+// WISHLIST
+// ============================
+function toggleWish(id, e) {
+  if (e) e.stopPropagation();
+  const phone = phones.find(p => p.id === id);
+  if (!phone) return;
+  const idx = wishlist.findIndex(w => w.id === id);
+  if (idx >= 0) {
+    wishlist.splice(idx, 1);
+    showToast('💔', `${phone.name} removed from wishlist`);
+  } else {
+    wishlist.push(phone);
+    showToast('❤️', `${phone.name} added to wishlist!`);
+  }
+  updateWishUI();
+  // Update card heart
+  document.querySelectorAll(`.phone-card[data-id="${id}"] .phone-card-wish`).forEach(el => {
+    el.classList.toggle('active', wishlist.find(w => w.id === id));
+  });
+}
+function updateWishUI() {
+  const el = document.getElementById('wishlist-items');
+  if (!wishlist.length) {
+    el.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">💝</div><p class="cart-empty-text">No saved items yet.<br>Heart any phone to add!</p></div>';
+    return;
+  }
+  el.innerHTML = wishlist.map(p => `
+    <div class="wishlist-item">
+      <div class="cart-item-img">${p.emoji}</div>
+      <div style="flex:1">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-variant">${p.brand}</div>
+        <div class="cart-item-price">$${p.price}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <span class="cart-item-remove" onclick="toggleWish(${p.id})" title="Remove">✕</span>
+        <button class="btn btn-primary btn-sm" onclick="addToCart(${p.id})">Add to Cart</button>
+      </div>
+    </div>`).join('');
+}
+function toggleWishlist() {
+  const sidebar = document.getElementById('wishlist-sidebar');
+  const bg = document.getElementById('overlay-bg');
+  const cartSide = document.getElementById('cart-sidebar');
+  cartSide.classList.remove('open');
+  sidebar.classList.toggle('open');
+  if (sidebar.classList.contains('open')) {
+    bg.classList.add('active'); document.body.style.overflow = 'hidden';
+  } else { bg.classList.remove('active'); document.body.style.overflow = ''; }
+}
+
+// ============================
+// CLOSE ALL
+// ============================
+function closeAll() {
+  document.getElementById('cart-sidebar').classList.remove('open');
+  document.getElementById('wishlist-sidebar').classList.remove('open');
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.getElementById('overlay-bg').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ============================
+// MOBILE NAV
+// ============================
+function toggleMobileNav() {
+  document.getElementById('mobile-nav').classList.toggle('open');
+  document.getElementById('overlay-bg').classList.toggle('active');
+}
+
+// ============================
+// TOAST
+// ============================
+let toastTimer;
+function showToast(icon, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 3000);
+}
+function hideToast() {
+  document.getElementById('toast').classList.remove('show');
+}
+
+// ============================
+// COMPARISON TABLE
+// ============================
+function renderComparison() {
+  const idx1 = parseInt(document.getElementById('compare-1').value);
+  const idx2 = parseInt(document.getElementById('compare-2').value);
+  const idx3 = parseInt(document.getElementById('compare-3').value);
+  const selected = [comparePhones[idx1], comparePhones[idx2]];
+  if (idx3 >= 0) selected.push(comparePhones[idx3]);
+  const table = document.getElementById('compare-table');
+  let html = '<thead><tr><th>Specification</th>';
+  selected.forEach(p => {
+    html += `<th><div class="phone-col-header"><div class="phone-col-icon">${p.icon}</div><div><div class="phone-col-name">${p.name}</div><div class="phone-col-brand">${p.brand}</div></div></div></th>`;
+  });
+  html += '</tr></thead><tbody>';
+  compareRows.forEach(row => {
+    html += `<tr><td>${row.label}</td>`;
+    const vals = selected.map(p => p[row.key]);
+    // Determine winner for numeric-like fields
+    selected.forEach((p, i) => {
+      const isWinner = determineWinner(row.key, vals, i);
+      html += `<td class="${isWinner ? 'compare-winner' : ''}">${p[row.key]}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+function determineWinner(key, vals, idx) {
+  if (['display','chip','os'].includes(key)) return false;
+  if (key === 'price') {
+    const nums = vals.map(v => parseInt(v.replace(/\D/g,'')));
+    return nums[idx] === Math.min(...nums);
+  }
+  if (key === 'battery') {
+    const nums = vals.map(v => parseInt(v.replace(/\D/g,'')));
+    return nums[idx] === Math.max(...nums);
+  }
+  if (key === 'charging') {
+    const nums = vals.map(v => parseInt(v.replace(/\D/g,'')));
+    return nums[idx] === Math.max(...nums);
+  }
+  if (key === 'ram') {
+    const nums = vals.map(v => parseInt(v.replace(/\D/g,'')));
+    return nums[idx] === Math.max(...nums);
+  }
+  if (key === 'weight') {
+    const nums = vals.map(v => parseInt(v.replace(/\D/g,'')));
+    return nums[idx] === Math.min(...nums);
+  }
+  return false;
+}
+
+// ============================
+// RENDER ACCESSORIES
+// ============================
+function renderAccessories(data) {
+  document.getElementById('acc-grid').innerHTML = data.map(a => `
+    <div class="acc-card">
+      <div class="acc-img">
+        <div class="acc-emoji">${a.emoji}</div>
+      </div>
+      <div class="acc-body">
+        ${a.badge ? `<div style="margin-bottom:6px"><span class="badge ${a.badgeType}">${a.badge}</span></div>` : ''}
+        <div class="acc-cat">${a.cat}</div>
+        <div class="acc-name">${a.name}</div>
+        <div class="acc-desc">${a.desc}</div>
+        <div class="acc-footer">
+          <div>
+            <div class="acc-price">$${a.price}</div>
+            ${a.oldPrice ? `<div style="font-size:12px;color:var(--text-muted);text-decoration:line-through">$${a.oldPrice}</div>` : ''}
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('✅','${a.name} added to cart!')">+ Cart</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function filterAcc(cat, btn) {
+  document.querySelectorAll('#accessories .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const data = cat === 'all' ? accessories : accessories.filter(a => a.cat === cat);
+  renderAccessories(data);
+}
+
+// ============================
+// RENDER SERVICES
+// ============================
+function renderServices() {
+  document.getElementById('services-grid').innerHTML = services.map(s => `
+    <div class="service-card">
+      <div class="service-icon ${s.iconClass}">${s.icon}</div>
+      <div class="service-name">${s.name}</div>
+      <div class="service-desc">${s.desc}</div>
+      <div class="service-features">
+        ${s.features.map(f => `<div class="service-feature">${f}</div>`).join('')}
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:auto">
+        <div>
+          <div class="service-price-from">${s.priceFrom}</div>
+          <div class="service-price">${s.price}</div>
+        </div>
+        <a href="#booking" class="btn btn-outline btn-sm">Book Now</a>
+      </div>
+    </div>`).join('');
+}
+
+// ============================
+// BOOKING
+// ============================
+function submitBooking() {
+  showToast('📅', 'Repair appointment booked! We\'ll contact you soon.');
+}
+
+// ============================
+// NEWSLETTER
+// ============================
+function subscribeNewsletter() {
+  const email = document.getElementById('newsletter-email').value.trim();
+  if (!email || !email.includes('@')) { showToast('⚠️', 'Please enter a valid email'); return; }
+  showToast('📧', 'Subscribed! Welcome to NEXUS newsletter.');
+  document.getElementById('newsletter-email').value = '';
+}
+
+// ============================
+// COUNTDOWN
+// ============================
+function updateCountdown() {
+  if (countdownSeconds <= 0) return;
+  countdownSeconds--;
+  const h = Math.floor(countdownSeconds / 3600);
+  const m = Math.floor((countdownSeconds % 3600) / 60);
+  const s = countdownSeconds % 60;
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+}
+setInterval(updateCountdown, 1000);
+
+// ============================
+// SCROLL EFFECTS
+// ============================
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('back-top');
+  btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+// ============================
+// INIT
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+  renderPhones(phones);
+  renderAccessories(accessories);
+  renderServices();
+  renderComparison();
+});
+</script>
+</body>
 </html>
